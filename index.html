@@ -1,192 +1,114 @@
+<!-- ============================ index.html ============================ -->
 <!doctype html>
 <html lang="es">
-  <head>
+
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Equilibra — Acceso</title>
-    <!-- Tailwind (CDN, ideal para prototipos) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS v2 -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-  </head>
-  <body class="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-6">
     <main class="w-full max-w-md">
-      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl shadow-xl p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h1 class="text-xl font-semibold">Iniciar sesión</h1>
-          <span class="text-xs text-slate-400">Equilibra • Demo</span>
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl shadow-xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-xl font-semibold">Iniciar sesión</h1>
+                <span class="text-xs text-slate-400">Equilibra • Demo</span>
+            </div>
+
+            <div id="auth-panels">
+                <!-- Sign In -->
+                <form id="form-signin" class="space-y-4">
+                    <div>
+                        <label class="block text-sm mb-1" for="si-email">Email</label>
+                        <input id="si-email" type="email" required placeholder="alguien@example.com"
+                            class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1" for="si-password">Contraseña</label>
+                        <input id="si-password" type="password" required placeholder="••••••••"
+                            class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+                    </div>
+                    <button type="submit"
+                        class="w-full rounded-lg bg-indigo-600 hover:bg-indigo-500 transition py-2 font-medium">Entrar</button>
+                    <p class="text-sm text-slate-400 text-center">¿No tienes cuenta? <a href="#" id="go-signup"
+                            class="text-indigo-400 hover:underline">Regístrate</a></p>
+                </form>
+
+                <!-- Sign Up -->
+                <form id="form-signup" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-sm mb-1" for="su-email">Email</label>
+                        <input id="su-email" type="email" required placeholder="persona@dominio.com"
+                            class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1" for="su-password">Contraseña</label>
+                        <input id="su-password" type="password" required minlength="6" placeholder="Mín. 6 caracteres"
+                            class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+                    </div>
+                    <button type="submit"
+                        class="w-full rounded-lg bg-emerald-600 hover:bg-emerald-500 transition py-2 font-medium">Crear
+                        cuenta</button>
+                    <p class="text-sm text-slate-400 text-center">¿Ya tienes cuenta? <a href="#" id="go-signin"
+                            class="text-indigo-400 hover:underline">Inicia sesión</a></p>
+                </form>
+
+                <!-- Reset (enviar email) -->
+                <form id="form-reset" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-sm mb-1" for="re-email">Email</label>
+                        <input id="re-email" type="email" required placeholder="tu@email.com"
+                            class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+                    </div>
+                    <button type="submit"
+                        class="w-full rounded-lg bg-amber-600 hover:bg-amber-500 transition py-2 font-medium">Enviar
+                        enlace de restablecimiento</button>
+                    <p class="text-sm text-slate-400 text-center"><a href="#" id="go-back-login"
+                            class="text-indigo-400 hover:underline">Volver a iniciar sesión</a></p>
+                </form>
+
+                <div class="mt-3 text-right">
+                    <button id="btn-forgot" class="text-xs text-slate-400 hover:text-slate-200">¿Olvidaste tu
+                        contraseña?</button>
+                </div>
+            </div>
+
+            <!-- App (se muestra con sesión activa) -->
+            <section id="app" class="hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-400">Sesión iniciada</p>
+                        <p class="text-lg font-medium" id="user-email">—</p>
+                    </div>
+                    <button id="btn-signout"
+                        class="rounded-lg bg-slate-800 border border-slate-700 hover:bg-slate-700 px-4 py-2">Salir</button>
+                </div>
+                <div class="mt-6 text-sm text-slate-400">
+                    <p>Desde aquí ya puedes cargar tu app (p. ej., Equilibra) sabiendo que el usuario está autenticado.
+                    </p>
+                </div>
+            </section>
+
+            <div id="toast" class="mt-4 text-sm"></div>
         </div>
 
-        <!-- Auth panels -->
-        <div id="auth-panels">
-          <!-- Sign In -->
-          <form id="form-signin" class="space-y-4">
-            <div>
-              <label class="block text-sm mb-1" for="si-email">Email</label>
-              <input id="si-email" type="email" required placeholder="alguien@example.com"
-                     class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
-            </div>
-            <div>
-              <label class="block text-sm mb-1" for="si-password">Contraseña</label>
-              <input id="si-password" type="password" required placeholder="••••••••"
-                     class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
-            </div>
-            <button type="submit" class="w-full rounded-lg bg-indigo-600 hover:bg-indigo-500 transition py-2 font-medium">Entrar</button>
-            <p class="text-sm text-slate-400 text-center">¿No tienes cuenta? <a href="#" id="go-signup" class="text-indigo-400 hover:underline">Regístrate</a></p>
-          </form>
-
-          <!-- Sign Up -->
-          <form id="form-signup" class="space-y-4 hidden">
-            <div>
-              <label class="block text-sm mb-1" for="su-email">Email</label>
-              <input id="su-email" type="email" required placeholder="persona@dominio.com"
-                     class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
-            </div>
-            <div>
-              <label class="block text-sm mb-1" for="su-password">Contraseña</label>
-              <input id="su-password" type="password" required minlength="6" placeholder="Mín. 6 caracteres"
-                     class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
-            </div>
-            <button type="submit" class="w-full rounded-lg bg-emerald-600 hover:bg-emerald-500 transition py-2 font-medium">Crear cuenta</button>
-            <p class="text-sm text-slate-400 text-center">¿Ya tienes cuenta? <a href="#" id="go-signin" class="text-indigo-400 hover:underline">Inicia sesión</a></p>
-          </form>
-
-          <!-- Reset (solo enviar email) -->
-          <form id="form-reset" class="space-y-4 hidden">
-            <div>
-              <label class="block text-sm mb-1" for="re-email">Email</label>
-              <input id="re-email" type="email" required placeholder="tu@email.com"
-                     class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
-            </div>
-            <button type="submit" class="w-full rounded-lg bg-amber-600 hover:bg-amber-500 transition py-2 font-medium">Enviar enlace de restablecimiento</button>
-            <p class="text-sm text-slate-400 text-center"><a href="#" id="go-back-login" class="text-indigo-400 hover:underline">Volver a iniciar sesión</a></p>
-          </form>
-
-          <div class="mt-3 text-right">
-            <button id="btn-forgot" class="text-xs text-slate-400 hover:text-slate-200">¿Olvidaste tu contraseña?</button>
-          </div>
-        </div>
-
-        <!-- App (se muestra con sesión activa) -->
-        <section id="app" class="hidden">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-sm text-slate-400">Sesión iniciada</p>
-              <p class="text-lg font-medium" id="user-email">—</p>
-            </div>
-            <button id="btn-signout" class="rounded-lg bg-slate-800 border border-slate-700 hover:bg-slate-700 px-4 py-2">Salir</button>
-          </div>
-          <div class="mt-6 text-sm text-slate-400">
-            <p>Desde aquí ya puedes cargar tu app (p. ej., Equilibra) sabiendo que el usuario está autenticado.</p>
-          </div>
-        </section>
-
-        <!-- Feedback -->
-        <div id="toast" class="mt-4 text-sm"></div>
-      </div>
-
-      <p class="mt-6 text-center text-xs text-slate-500">Diseñado por Digital Workflows®</p>
+        <p class="mt-6 text-center text-xs text-slate-500">Diseñado por Digital Workflows®</p>
     </main>
 
-    <script>
-      // 1) Configura tus credenciales de Supabase
-      const SUPABASE_URL = "https://gbezspywlvzzbrkfotxe.supabase.co"; // ← reemplaza
-      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdiZXpzcHl3bHZ6emJya2ZvdHhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NTcwMjUsImV4cCI6MjA3MjUzMzAyNX0.AsRlhIPl5GwpExTYU_MJW8pZ-5YsBIbionNe9Xsi7Rs"; // ← reemplaza (Public anon key)
+    <!-- Scripts modulares -->
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+</body>
 
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-      // Helpers UI
-      const $ = (id) => document.getElementById(id);
-      const toggle = (el, show) => el.classList.toggle('hidden', !show);
-      const toast = (msg, type = 'info') => {
-        const t = $("toast");
-        const styles = {
-          info: "text-slate-300",
-          ok: "text-emerald-400",
-          warn: "text-amber-400",
-          err: "text-red-400"
-        };
-        t.className = `mt-4 text-sm ${styles[type] || styles.info}`;
-        t.textContent = msg;
-      };
-
-      const authPanels = $("auth-panels");
-      const appPanel = $("app");
-      const userEmail = $("user-email");
-
-      // Navegación simple entre paneles
-      $("go-signup").addEventListener('click', (e) => { e.preventDefault(); toggle($("form-signin"), false); toggle($("form-reset"), false); toggle($("form-signup"), true); });
-      $("go-signin").addEventListener('click', (e) => { e.preventDefault(); toggle($("form-signin"), true); toggle($("form-reset"), false); toggle($("form-signup"), false); });
-      $("btn-forgot").addEventListener('click', () => { toggle($("form-signin"), false); toggle($("form-reset"), true); toggle($("form-signup"), false); });
-      $("go-back-login").addEventListener('click', (e) => { e.preventDefault(); toggle($("form-signin"), true); toggle($("form-reset"), false); toggle($("form-signup"), false); });
-
-      // 2) Sign In
-      $("form-signin").addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = $("si-email").value.trim();
-        const password = $("si-password").value;
-        toast("Entrando…");
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) return toast(error.message, 'err');
-        toast('¡Bienvenido!', 'ok');
-      });
-
-      // 3) Sign Up
-      $("form-signup").addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = $("su-email").value.trim();
-        const password = $("su-password").value;
-        toast("Creando cuenta…");
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: window.location.origin
-          }
-        });
-        if (error) return toast(error.message, 'err');
-        toast('Revisa tu correo para confirmar la cuenta.', 'ok');
-        // Volver a login tras registro
-        toggle($("form-signin"), true); toggle($("form-signup"), false);
-      });
-
-      // 4) Reset password (envía email con enlace)
-      $("form-reset").addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = $("re-email").value.trim();
-        toast("Enviando enlace de restablecimiento…");
-        const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin
-        });
-        if (error) return toast(error.message, 'err');
-        toast('Si el email existe, se ha enviado un enlace para restablecer.', 'ok');
-      });
-
-      // 5) Sign Out
-      $("btn-signout").addEventListener('click', async () => {
-        await supabase.auth.signOut();
-      });
-
-      // 6) Escuchar cambios de sesión y alternar UI
-      supabase.auth.onAuthStateChange(async (event, session) => {
-        const logged = !!session;
-        toggle(authPanels, !logged);
-        toggle(appPanel, logged);
-        userEmail.textContent = logged ? (session.user?.email || 'Usuario') : '—';
-
-        if (event === 'PASSWORD_RECOVERY') {
-          toast('Abre el enlace desde tu email para restablecer la contraseña.', 'warn');
-        }
-      });
-
-      // 7) Chequear sesión al cargar
-      (async function init() {
-        const { data: { session } } = await supabase.auth.getSession();
-        const logged = !!session;
-        toggle(authPanels, !logged);
-        toggle(appPanel, logged);
-        if (logged) userEmail.textContent = session.user?.email || 'Usuario';
-      })();
-    </script>
-  </body>
 </html>

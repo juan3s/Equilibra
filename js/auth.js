@@ -1,0 +1,89 @@
+// Configura tus credenciales (usa las reales de tu proyecto)
+const SUPABASE_URL = "https://gbezspywlvzzbrkfotxe.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdiZXpzcHl3bHZ6emJya2ZvdHhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NTcwMjUsImV4cCI6MjA3MjUzMzAyNX0.AsRlhIPl5GwpExTYU_MJW8pZ-5YsBIbionNe9Xsi7Rs";
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Helpers UI
+const $ = (id) => document.getElementById(id);
+const toggle = (el, show) => el.classList.toggle('hidden', !show);
+const toast = (msg, type = 'info') => {
+    const t = $("toast");
+    const styles = { info: "text-slate-300", ok: "text-emerald-400", warn: "text-amber-400", err: "text-red-400" };
+    if (!t) return;
+    t.className = `mt-4 text-sm ${styles[type] || styles.info}`;
+    t.textContent = msg;
+};
+
+const authPanels = $("auth-panels");
+const appPanel = $("app");
+const userEmail = $("user-email");
+
+// Navegación simple entre paneles (solo si existen en la página)
+$("go-signup")?.addEventListener('click', (e) => { e.preventDefault(); toggle($("form-signin"), false); toggle($("form-reset"), false); toggle($("form-signup"), true); });
+$("go-signin")?.addEventListener('click', (e) => { e.preventDefault(); toggle($("form-signin"), true); toggle($("form-reset"), false); toggle($("form-signup"), false); });
+$("btn-forgot")?.addEventListener('click', () => { toggle($("form-signin"), false); toggle($("form-reset"), true); toggle($("form-signup"), false); });
+$("go-back-login")?.addEventListener('click', (e) => { e.preventDefault(); toggle($("form-signin"), true); toggle($("form-reset"), false); toggle($("form-signup"), false); });
+
+// Sign In
+$("form-signin")?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = $("si-email").value.trim();
+    const password = $("si-password").value;
+    toast("Entrando…");
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return toast(error.message, 'err');
+    toast('¡Bienvenido!', 'ok');
+});
+
+// Sign Up
+$("form-signup")?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = $("su-email").value.trim();
+    const password = $("su-password").value;
+    toast("Creando cuenta…");
+    const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: `${window.location.origin}/reset.html` }
+    });
+    if (error) return toast(error.message, 'err');
+    toast('Revisa tu correo para confirmar/restablecer.', 'ok');
+    toggle($("form-signin"), true); toggle($("form-signup"), false);
+});
+
+// Reset password (envía email con enlace a reset.html)
+$("form-reset")?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = $("re-email").value.trim();
+    toast("Enviando enlace de restablecimiento…");
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset.html` });
+    if (error) return toast(error.message, 'err');
+    toast('Si el email existe, se ha enviado un enlace para restablecer.', 'ok');
+});
+
+// Sign Out
+$("btn-signout")?.addEventListener('click', async () => {
+    await supabase.auth.signOut();
+});
+
+// Cambios de sesión
+supabase.auth.onAuthStateChange(async (event, session) => {
+    const logged = !!session;
+    if (authPanels) toggle(authPanels, !logged);
+    if (appPanel) toggle(appPanel, logged);
+    if (userEmail) userEmail.textContent = logged ? (session.user?.email || 'Usuario') : '—';
+
+    if (event === 'PASSWORD_RECOVERY') {
+        toast('Abre el enlace desde tu email para restablecer la contraseña.', 'warn');
+    }
+});
+
+// Chequear sesión al cargar (solo en index)
+(async function init() {
+    const { data: { session } } = await supabase.auth.getSession();
+    const logged = !!session;
+    if (authPanels) toggle(authPanels, !logged);
+    if (appPanel) toggle(appPanel, logged);
+    if (userEmail && logged) userEmail.textContent = session.user?.email || 'Usuario';
+})();
