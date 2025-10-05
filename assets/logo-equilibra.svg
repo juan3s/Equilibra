@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <title>Equilibra Icon (Vector)</title>
+  <desc>Vector recreation of the provided logo: indigo ring with green balanced chevron/triangle.</desc>
+
+  <!-- Colors (approximate from the preview) -->
+  <defs>
+    <style>
+      .indigo { fill: none; stroke: #4F46E5; }
+      .emerald { fill: #10B981; }
+    </style>
+  </defs>
+
+  <!-- Indigo ring -->
+  <circle cx="256" cy="256" r="180" class="indigo" stroke-width="56" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Emerald balanced chevron with inner cutout -->
+  <!-- Outer triangle -->
+  <path fill-rule="evenodd" class="emerald" d="
+    M 112 356
+    L 256 148
+    L 400 356
+    Z
+    M 206 356
+    L 256 286
+    L 306 356
+    Z
+  "/>
+</svg>
