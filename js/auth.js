@@ -86,19 +86,4 @@ supabase.auth.onAuthStateChange(async (event, session) => {
     if (authPanels) toggle(authPanels, !logged);
     if (appPanel) toggle(appPanel, logged);
     if (userEmail && logged) userEmail.textContent = session.user?.email || 'Usuario';
-})
-
-// Abrir panel de registro si viene ?signup=1
-(function openSignupIfRequested() {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('signup') === '1') {
-        const signin = document.getElementById('form-signin');
-        const signup = document.getElementById('form-signup');
-        const reset = document.getElementById('form-reset');
-        if (signin && signup) {
-            signin.classList.add('hidden');
-            reset?.classList.add('hidden');
-            signup.classList.remove('hidden');
-        }
-    }
 })();
