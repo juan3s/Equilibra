@@ -15,7 +15,7 @@ const toast = (msg, type = 'info') => {
     t.textContent = msg;
 };
 
-const authPanels = $("auth-panels");
+//const authPanels = $("auth-panels");
 //const appPanel = $("app");
 const userEmail = $("user-email");
 
@@ -71,7 +71,7 @@ $("btn-signout")?.addEventListener('click', async () => {
 // Cambios de sesión
 supabase.auth.onAuthStateChange(async (event, session) => {
     const logged = !!session;
-    if (authPanels) toggle(authPanels, !logged);
+    //if (authPanels) toggle(authPanels, !logged);
     //if (appPanel) toggle(appPanel, logged);
     if (userEmail) userEmail.textContent = logged ? (session.user?.email || 'Usuario') : '—';
 
@@ -92,7 +92,7 @@ supabase.auth.onAuthStateChange(async (event, session) => {
         return;
     }
     const logged = !!session;
-    if (authPanels) toggle(authPanels, !logged);
+    //if (authPanels) toggle(authPanels, !logged);
     //if (appPanel) toggle(appPanel, logged);
     if (userEmail && logged) userEmail.textContent = session.user?.email || 'Usuario';
 })();
