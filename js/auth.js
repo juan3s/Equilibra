@@ -16,7 +16,7 @@ const toast = (msg, type = 'info') => {
 };
 
 const authPanels = $("auth-panels");
-const appPanel = $("app");
+//const appPanel = $("app");
 const userEmail = $("user-email");
 
 // Navegación simple entre paneles (solo si existen en la página)
@@ -72,7 +72,7 @@ $("btn-signout")?.addEventListener('click', async () => {
 supabase.auth.onAuthStateChange(async (event, session) => {
     const logged = !!session;
     if (authPanels) toggle(authPanels, !logged);
-    if (appPanel) toggle(appPanel, logged);
+    //if (appPanel) toggle(appPanel, logged);
     if (userEmail) userEmail.textContent = logged ? (session.user?.email || 'Usuario') : '—';
 
     if (event === 'PASSWORD_RECOVERY') {
@@ -93,6 +93,6 @@ supabase.auth.onAuthStateChange(async (event, session) => {
     }
     const logged = !!session;
     if (authPanels) toggle(authPanels, !logged);
-    if (appPanel) toggle(appPanel, logged);
+    //if (appPanel) toggle(appPanel, logged);
     if (userEmail && logged) userEmail.textContent = session.user?.email || 'Usuario';
 })();
