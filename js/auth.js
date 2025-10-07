@@ -34,6 +34,7 @@ $("form-signin")?.addEventListener('submit', async (e) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return toast(error.message, 'err');
     toast('¡Bienvenido!', 'ok');
+    window.location.href = "/dashboard.html";
 });
 
 // Sign Up
@@ -77,11 +78,19 @@ supabase.auth.onAuthStateChange(async (event, session) => {
     if (event === 'PASSWORD_RECOVERY') {
         toast('Abre el enlace desde tu email para restablecer la contraseña.', 'warn');
     }
+
+    if (event === "SIGNED_IN" && session) {
+        window.location.href = "/dashboard.html"; // ← cualquier inicio de sesión
+    }
 });
 
 // Chequear sesión al cargar (solo en index)
 (async function init() {
     const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+        window.location.href = "/dashboard.html"; // ← evita quedarse en login
+        return;
+    }
     const logged = !!session;
     if (authPanels) toggle(authPanels, !logged);
     if (appPanel) toggle(appPanel, logged);

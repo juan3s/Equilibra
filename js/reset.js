@@ -44,5 +44,5 @@ $r('form-new-pass')?.addEventListener('submit', async (e) => {
     const { data, error } = await supabase.auth.updateUser({ password: p1 });
     if (error) return msg(error.message, 'text-red-400');
     msg('¡Contraseña actualizada! Ya puedes volver a iniciar sesión.', 'text-emerald-400');
-    // setTimeout(()=> window.location.href = '/', 1500);
+    setTimeout(() => (window.location.href = "/dashboard.html"), 800);
 });
