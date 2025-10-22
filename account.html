@@ -1,93 +1,96 @@
 <!-- ============================ account.html ============================ -->
 <!doctype html>
 <html lang="es">
-
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Equilibra — Mis Ajustes</title>
-  <meta name="description" content="Página de administración de la cuenta del usuario en Equilibra." />
-  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.png" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Equilibra — Mis Ajustes</title>
+    <meta name="description" content="Página de administración de la cuenta del usuario en Equilibra." />
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
 
-  <!-- UI base -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- UI base -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
 
-  <style>
-    html, body { height: 100%; }
-    body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji'; }
+        :root {
+            --bg: #0f172a;
+            --card: #0b1220;
+            --muted: #94a3b8;
+            --text: #e5e7eb;
+            --primary: #4f46e5;
+            --accent: #10b981;
+        }
+        body {
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text)
+        }
+        .glass {
+            background: linear-gradient(180deg, rgba(15, 23, 42, .7), rgba(15, 23, 42, .5));
+            backdrop-filter: blur(6px);
+        }
+        .container { max-width: 1100px }
 
-    .glass { backdrop-filter: blur(10px); background: rgba(2,6,23,0.6); }
-    .container { max-width: 1100px }
-    .menu-item { @apply block w-full text-left px-4 py-2 text-sm hover:bg-slate-800; }
-  </style>
-
-  <!-- Supabase (UMD) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+    </style>
 </head>
-
 <body class="min-h-screen flex flex-col">
-  <!-- Header -->
-  <header class="w-full sticky top-0 z-30 glass border-b border-slate-800">
-    <div class="container mx-auto px-5 py-4 flex items-center justify-between">
-      <a href="/index.html" class="flex items-center gap-3 group">
-        <img src="/assets/logo-equilibra.svg" alt="Equilibra" class="w-8 h-8" />
-        <span class="font-semibold tracking-tight group-hover:text-slate-200 transition-colors">Equilibra</span>
-      </a>
+    <!-- Header -->
+    <header class="w-full sticky top-0 z-30 glass border-b border-slate-800">
+        <div class="container mx-auto px-5 py-4 flex items-center justify-between">
+            <a href="/index.html" class="flex items-center gap-3 group">
+                <img src="/assets/logo-equilibra.svg" alt="Equilibra" class="w-8 h-8" />
+                <span class="font-semibold tracking-tight group-hover:text-indigo-300">Equilibra</span>
+            </a>
 
-      <!-- User menu (only visible if autenticado, control en JS) -->
-      <div class="relative" id="user-menu-wrapper">
-        <button id="btn-user" class="flex items-center gap-3 px-3 py-2 rounded-xl border border-slate-700 hover:bg-slate-800">
-          <div class="text-right leading-tight hidden sm:block">
-            <div id="user-name" class="text-sm font-medium">Usuario</div>
-            <div id="user-email" class="text-xs text-slate-400">email@example.com</div>
-          </div>
-          <div class="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-semibold" id="user-initials">U</div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
-        </button>
-        <div id="dropdown" class="hidden absolute right-0 mt-2 w-52 rounded-xl border border-slate-700 bg-slate-900 shadow-xl overflow-hidden">
-          <a href="/dashboard.html" class="block px-4 py-2 text-sm hover:bg-slate-800">Dashboard</a>
-          <a href="/account.html" class="block px-4 py-2 text-sm hover:bg-slate-800">Mis Ajustes</a>
-          <div class="h-px bg-slate-800 my-1"></div>
-          <button id="btn-logout" class="w-full text-left px-4 py-2 text-sm hover:bg-slate-800">Cerrar sesión</button>
+            <!-- User menu -->
+            <nav class="relative">
+                <button id="user-menu-button" class="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-700 hover:border-slate-600 hover:bg-slate-800 text-sm">
+                    <span id="user-name-header">Usuario</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 opacity-70" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.96l3.71-3.71a.75.75 0 011.08 1.04l-4.25 4.25a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div id="user-menu" class="absolute right-0 mt-2 w-44 rounded-lg border border-slate-700 bg-slate-900/90 backdrop-blur p-1 hidden shadow-xl">
+                    <a href="/dashboard.html" class="block px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Dashboard</a>
+                    <a href="/account.html" class="block px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Mis Ajustes</a>
+                    <div class="h-px bg-slate-800 my-1"></div>
+                    <button id="btn-logout" class="w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Cerrar sesión</button>
+                </div>
+            </nav>
         </div>
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- Main -->
-  <main class="flex-1">
-    <section class="container mx-auto px-5 py-10">
-      <h1 class="text-2xl font-semibold mb-2">Mis Ajustes</h1>
-      <p class="text-slate-300">Esta es una página de administración de la cuenta.</p>
+    <!-- Main -->
+    <main class="flex-1">
+        <section class="container mx-auto px-5 py-10">
+            <h1 class="text-2xl font-semibold mb-2">Mis Ajustes</h1>
+            <p class="text-slate-300">Esta es una página de administración de la cuenta.</p>
 
-      <!-- Placeholder de futuras opciones (sin persistencia) -->
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-          <h2 class="font-medium mb-2">Perfil</h2>
-          <p class="text-sm text-slate-400">Aquí podrás configurar tu nombre mostrado, imagen y preferencias básicas.</p>
+            <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+                    <h2 class="font-medium mb-2">Perfil</h2>
+                    <p class="text-sm text-slate-400">Aquí podrás configurar tu nombre mostrado, imagen y preferencias básicas.</p>
+                </div>
+                <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+                    <h2 class="font-medium mb-2">Seguridad</h2>
+                    <p class="text-sm text-slate-400">Opciones relacionadas con la seguridad de tu cuenta y acceso.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800">
+        <div class="container mx-auto px-5 py-8 text-center text-xs text-slate-500">
+            © 2025 Equilibra — Diseñado por Digital Workflows®
         </div>
-        <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-          <h2 class="font-medium mb-2">Seguridad</h2>
-          <p class="text-sm text-slate-400">Opciones relacionadas con la seguridad de tu cuenta y acceso.</p>
-        </div>
-      </div>
-    </section>
-  </main>
+    </footer>
 
-  <!-- Footer -->
-  <footer class="border-t border-slate-800">
-    <div class="container mx-auto px-5 py-8 text-center text-xs text-slate-500">
-      © 2025 Equilibra — Diseñado por Digital Workflows®
-    </div>
-  </footer>
-
-  <!-- App scripts -->
-  <script src="/js/supabaseClient.js"></script>
-  <script src="/js/account.js"></script>
+    <!-- Scripts (orden importa) -->
+    <script src="/js/supabaseClient.js"></script>
+    <script src="/js/account.js"></script>
 </body>
-
 </html>
