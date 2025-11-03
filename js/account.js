@@ -1,5 +1,5 @@
 // ============================ /js/account.js ============================
-// Protección de ruta + Menú usuario + Gestión UI de cuentas bancarias
+// Protección de ruta + Menú usuario + Gestión UI de cuentas bancarias y bolsillos
 const supabase = window.sb;
 const $ = (id) => document.getElementById(id);
 
@@ -23,15 +23,22 @@ function setupUserMenu() {
 }
 
 // ---------- Estado local ----------
-let BANKS = []; // {id, name}
+let BANKS = [];     // {id, name}
+let ACCOUNTS = [];  // {id, name, bank_id}
 
 // ---------- Cargar bancos para el select ----------
 async function loadBanks() {
-  const sel = $("ba-bank"); if (!sel) return;
+  const sel = $("ba-bank"); // puede no existir en todas las vistas
   const { data, error } = await supabase.from('banks').select('id,name').order('name');
-  if (error) { sel.innerHTML = `<option value="">—</option>`; return; }
+  if (error) {
+    if (sel) sel.innerHTML = `<option value="">—</option>`;
+    return;
+  }
   BANKS = data || [];
-  sel.innerHTML = (BANKS.length ? BANKS : [{ id: '', name: '—' }]).map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+  if (sel) {
+    sel.innerHTML = (BANKS.length ? BANKS : [{ id: '', name: '—' }])
+      .map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+  }
 }
 
 // ---------- Listado de cuentas bancarias ----------
@@ -49,8 +56,9 @@ async function loadBankAccounts() {
   const tbody = $("bank-accounts-tbody");
   const empty = $("bank-accounts-empty");
   const msg = $("bank-accounts-msg");
-  if (error) { tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-4 text-red-400">${error.message}</td></tr>`; empty.classList.add('hidden'); return; }
+  if (error) { if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-4 text-red-400">${error.message}</td></tr>`; if (empty) empty.classList.add('hidden'); return; }
   const rows = data || [];
+  if (!tbody || !empty) return;
   if (rows.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
   empty.classList.add('hidden');
   tbody.innerHTML = rows.map(r => {
@@ -66,10 +74,10 @@ async function loadBankAccounts() {
       </td>
     </tr>`;
   }).join('');
-  msg.textContent = '';
+  msg && (msg.textContent = '');
 }
 
-// ---------- Modal crear/editar ----------
+// ---------- Modal crear/editar cuenta ----------
 function toggleBAModal(show) { const m = $("bank-account-modal"); if (!m) return; m.classList.toggle('hidden', !show); }
 function setError(el, show) { el?.classList.toggle('hidden', !show); }
 function fillBAForm(a = {}) {
@@ -91,7 +99,7 @@ function bindBAModal() {
   $("bank-account-form")?.addEventListener('submit', upsertBankAccount);
 }
 
-// ---------- Acciones CRUD ----------
+// ---------- Acciones CRUD cuenta ----------
 async function upsertBankAccount(e) {
   e.preventDefault();
   const uid = await getUserId(); if (!uid) return;
@@ -139,6 +147,128 @@ async function onTableClick(e) {
 }
 function bindBATable() { $("bank-accounts-tbody")?.addEventListener('click', onTableClick); }
 
+// =====================================================================
+//                         BOLSILLOS (POCKETS)
+// =====================================================================
+
+// Cargar cuentas para el dropdown de bolsillos
+async function loadAccountsForSelect() {
+  const uid = await getUserId(); if (!uid) return;
+  const sel = $("po-account");
+  const { data, error } = await supabase
+    .from('bank_accounts')
+    .select('id,name,bank_id')
+    .eq('user_id', uid)
+    .order('name');
+  if (error) {
+    if (sel) sel.innerHTML = '<option value="">—</option>';
+    return;
+  }
+  ACCOUNTS = data || [];
+  if (sel) {
+    sel.innerHTML = '<option value="" disabled selected>Selecciona una cuenta…</option>' +
+      ACCOUNTS.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+  }
+}
+
+function findAccountName(account_id) {
+  const a = ACCOUNTS.find(x => x.id === account_id);
+  return a?.name || '—';
+}
+function findAccountBankName(account_id) {
+  const a = ACCOUNTS.find(x => x.id === account_id);
+  return findBankName(a?.bank_id);
+}
+
+// Listado de bolsillos
+async function loadPockets() {
+  const uid = await getUserId(); if (!uid) return;
+  const { data, error } = await supabase
+    .from('pockets')
+    .select('id,name,bank_account_id')
+    .eq('user_id', uid)
+    .order('created_at', { ascending: false });
+
+  const tbody = $("pockets-tbody");
+  const empty = $("pockets-empty");
+  const msg = $("pockets-msg");
+  if (error) { if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-4 text-red-400">${error.message}</td></tr>`; if (empty) empty.classList.add('hidden'); return; }
+  const rows = data || [];
+  if (!tbody || !empty) return;
+  if (rows.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  tbody.innerHTML = rows.map(r => {
+    const accountName = findAccountName(r.bank_account_id);
+    const bankName = findAccountBankName(r.bank_account_id);
+    return `<tr>
+      <td class="px-4 py-3">${r.name || '—'}</td>
+      <td class="px-4 py-3">${bankName || '—'}</td>
+      <td class="px-4 py-3">${accountName || '—'}</td>
+      <td class="px-4 py-3 text-right">
+        <button class="px-3 py-1 rounded-md border border-slate-700 hover:bg-slate-800 text-xs" data-po-edit="${r.id}">Editar</button>
+        <button class="px-3 py-1 rounded-md border border-rose-700 text-rose-300 hover:bg-rose-900/20 text-xs" data-po-del="${r.id}">Borrar</button>
+      </td>
+    </tr>`;
+  }).join('');
+  msg && (msg.textContent = '');
+}
+
+// Modal de bolsillos
+function togglePOModal(show) { const m = $("pocket-modal"); if (!m) return; m.classList.toggle('hidden', !show); }
+function setPOError(el, show) { el?.classList.toggle('hidden', !show); }
+function fillPOForm(p = {}) {
+  $("po-id").value = p.id || '';
+  $("po-name").value = p.name || '';
+  $("po-account").value = p.bank_account_id || '';
+  $("pomodal-title").textContent = p.id ? 'Editar bolsillo' : 'Agregar bolsillo';
+  $("pomodal-msg").textContent = '';
+  setPOError($("err-po-name"), false); setPOError($("err-po-account"), false);
+}
+function bindPOModal() {
+  $("btn-new-pocket")?.addEventListener('click', () => { fillPOForm(); togglePOModal(true); });
+  document.querySelectorAll('[data-close-pomodal]').forEach(el => el.addEventListener('click', () => togglePOModal(false)));
+  $("pocket-form")?.addEventListener('submit', upsertPocket);
+}
+
+// Acciones CRUD bolsillos
+async function upsertPocket(e) {
+  e.preventDefault();
+  const uid = await getUserId(); if (!uid) return;
+  const id = $("po-id").value || undefined;
+  const name = $("po-name").value.trim();
+  const bank_account_id = $("po-account").value;
+
+  let valid = true;
+  setPOError($("err-po-name"), false); setPOError($("err-po-account"), false);
+  if (!name) { setPOError($("err-po-name"), true); valid = false; }
+  if (!bank_account_id) { setPOError($("err-po-account"), true); valid = false; }
+  if (!valid) return;
+
+  const payload = { id, user_id: uid, name, bank_account_id, initial_amount: id ? undefined : 0 };
+  const { error } = await supabase.from('pockets').upsert(payload).select('id').single();
+  $("pomodal-msg").textContent = error ? error.message : 'Guardado ✅';
+  if (!error) { await loadPockets(); setTimeout(() => togglePOModal(false), 400); }
+}
+
+async function onPocketsTableClick(e) {
+  const editBtn = e.target.closest('[data-po-edit]');
+  const delBtn = e.target.closest('[data-po-del]');
+  if (editBtn) {
+    const id = editBtn.getAttribute('data-po-edit');
+    const { data, error } = await supabase.from('pockets').select('*').eq('id', id).single();
+    if (error) return alert(error.message);
+    fillPOForm(data); togglePOModal(true); return;
+  }
+  if (delBtn) {
+    const id = delBtn.getAttribute('data-po-del');
+    if (!confirm('¿Eliminar este bolsillo? Esta acción no se puede deshacer.')) return;
+    const { error } = await supabase.from('pockets').delete().eq('id', id);
+    if (error) return alert(error.message);
+    await loadPockets();
+  }
+}
+function bindPocketsTable() { $("pockets-tbody")?.addEventListener('click', onPocketsTableClick); }
+
 // ---------- Init ----------
 async function initAccountPage() {
   const session = await requireSessionOrRedirect(); if (!session) return;
@@ -154,7 +284,12 @@ async function initAccountPage() {
   await loadBankAccounts();
   bindBAModal();
   bindBATable();
+
+  // Bolsillos
+  await loadAccountsForSelect();
+  await loadPockets();
+  bindPOModal();
+  bindPocketsTable();
 }
 
 initAccountPage();
-
