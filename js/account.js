@@ -21,6 +21,12 @@ function setupUserMenu() {
   document.addEventListener('click', () => menu.classList.add('hidden'));
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') menu.classList.add('hidden'); });
 }
+function createElement(tag, className, textContent) {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  if (textContent) el.textContent = textContent;
+  return el;
+}
 
 // ---------- Estado local ----------
 let BANKS = [];     // {id, name}
@@ -61,19 +67,31 @@ async function loadBankAccounts() {
   if (!tbody || !empty) return;
   if (rows.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
   empty.classList.add('hidden');
-  tbody.innerHTML = rows.map(r => {
+  tbody.innerHTML = '';
+  rows.forEach(r => {
     const bankName = r.banks?.name || findBankName(r.bank_id);
-    return `<tr>
-      <td class="px-4 py-3">${r.name || '—'}</td>
-      <td class="px-4 py-3 capitalize">${r.account_type || '—'}</td>
-      <td class="px-4 py-3">${r.currency_code || 'COP'}</td>
-      <td class="px-4 py-3">${bankName || '—'}</td>
-      <td class="px-4 py-3 text-right">
-        <button class="px-3 py-1 rounded-md border border-slate-700 hover:bg-slate-800 text-xs" data-ba-edit="${r.id}">Editar</button>
-        <button class="px-3 py-1 rounded-md border border-rose-700 text-rose-300 hover:bg-rose-900/20 text-xs" data-ba-del="${r.id}">Borrar</button>
-      </td>
-    </tr>`;
-  }).join('');
+    const tr = document.createElement('tr');
+
+    tr.appendChild(createElement('td', 'px-4 py-3', r.name || '—'));
+    tr.appendChild(createElement('td', 'px-4 py-3 capitalize', r.account_type || '—'));
+    tr.appendChild(createElement('td', 'px-4 py-3', r.currency_code || 'COP'));
+    tr.appendChild(createElement('td', 'px-4 py-3', bankName || '—'));
+
+    const tdActions = createElement('td', 'px-4 py-3 text-right');
+    
+    const btnEdit = createElement('button', 'px-3 py-1 rounded-md border border-slate-700 hover:bg-slate-800 text-xs', 'Editar');
+    btnEdit.setAttribute('data-ba-edit', r.id);
+    tdActions.appendChild(btnEdit);
+    
+    tdActions.appendChild(document.createTextNode(' '));
+
+    const btnDel = createElement('button', 'px-3 py-1 rounded-md border border-rose-700 text-rose-300 hover:bg-rose-900/20 text-xs', 'Borrar');
+    btnDel.setAttribute('data-ba-del', r.id);
+    tdActions.appendChild(btnDel);
+
+    tr.appendChild(tdActions);
+    tbody.appendChild(tr);
+  });
   msg && (msg.textContent = '');
 }
 
@@ -197,19 +215,31 @@ async function loadPockets() {
   if (!tbody || !empty) return;
   if (rows.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
   empty.classList.add('hidden');
-  tbody.innerHTML = rows.map(r => {
+  tbody.innerHTML = '';
+  rows.forEach(r => {
     const accountName = findAccountName(r.bank_account_id);
     const bankName = findAccountBankName(r.bank_account_id);
-    return `<tr>
-      <td class="px-4 py-3">${r.name || '—'}</td>
-      <td class="px-4 py-3">${bankName || '—'}</td>
-      <td class="px-4 py-3">${accountName || '—'}</td>
-      <td class="px-4 py-3 text-right">
-        <button class="px-3 py-1 rounded-md border border-slate-700 hover:bg-slate-800 text-xs" data-po-edit="${r.id}">Editar</button>
-        <button class="px-3 py-1 rounded-md border border-rose-700 text-rose-300 hover:bg-rose-900/20 text-xs" data-po-del="${r.id}">Borrar</button>
-      </td>
-    </tr>`;
-  }).join('');
+    const tr = document.createElement('tr');
+
+    tr.appendChild(createElement('td', 'px-4 py-3', r.name || '—'));
+    tr.appendChild(createElement('td', 'px-4 py-3', bankName || '—'));
+    tr.appendChild(createElement('td', 'px-4 py-3', accountName || '—'));
+
+    const tdActions = createElement('td', 'px-4 py-3 text-right');
+
+    const btnEdit = createElement('button', 'px-3 py-1 rounded-md border border-slate-700 hover:bg-slate-800 text-xs', 'Editar');
+    btnEdit.setAttribute('data-po-edit', r.id);
+    tdActions.appendChild(btnEdit);
+
+    tdActions.appendChild(document.createTextNode(' '));
+
+    const btnDel = createElement('button', 'px-3 py-1 rounded-md border border-rose-700 text-rose-300 hover:bg-rose-900/20 text-xs', 'Borrar');
+    btnDel.setAttribute('data-po-del', r.id);
+    tdActions.appendChild(btnDel);
+
+    tr.appendChild(tdActions);
+    tbody.appendChild(tr);
+  });
   msg && (msg.textContent = '');
 }
 
