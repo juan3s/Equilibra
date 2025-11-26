@@ -1,0 +1,103 @@
+<!-- ============================ transactions.html ============================ -->
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Equilibra — Transacciones</title>
+    <meta name="description" content="Registro de transacciones en Equilibra." />
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+
+    <!-- UI base -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #0b1220;
+            --muted: #94a3b8;
+            --text: #e5e7eb;
+            --primary: #4f46e5;
+            --accent: #10b981;
+        }
+
+        body {
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text)
+        }
+
+        .glass {
+            background: linear-gradient(180deg, rgba(15, 23, 42, .7), rgba(15, 23, 42, .5));
+            backdrop-filter: blur(6px);
+        }
+
+        .container {
+            max-width: 1100px
+        }
+    </style>
+
+    <!-- Supabase (UMD) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</head>
+
+<body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="w-full sticky top-0 z-30 glass border-b border-slate-800">
+        <div class="container mx-auto px-5 py-4 flex items-center justify-between">
+            <a href="/index.html" class="flex items-center gap-3 group">
+                <img src="/assets/logo-equilibra.svg" alt="Equilibra" class="w-8 h-8" />
+                <span class="font-semibold tracking-tight group-hover:text-indigo-300">Equilibra</span>
+            </a>
+            <!-- User menu -->
+            <nav class="relative">
+                <button id="user-menu-button"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-700 hover:border-slate-600 hover:bg-slate-800 text-sm">
+                    <span id="user-name-header">Usuario</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 opacity-70" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div id="user-menu"
+                    class="absolute right-0 mt-2 w-44 rounded-lg border border-slate-700 bg-slate-900/90 backdrop-blur p-1 hidden shadow-xl">
+                    <a href="/dashboard.html"
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Dashboard</a>
+                    <a href="/transactions.html"
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Transacciones</a>
+                    <a href="/account.html" class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Mis
+                        Ajustes</a>
+                    <button id="btn-logout" class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Cerrar
+                        sesión</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-1">
+        <section class="container mx-auto px-5 py-10 md:py-14">
+            <h1 class="text-3xl md:text-4xl font-bold leading-tight">Transacciones</h1>
+            <p class="mt-4 text-slate-300 md:text-lg max-w-2xl">
+                En esta página se realizará el registro de transacciones sobre las cuentas.
+            </p>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800">
+        <div class="container mx-auto px-5 py-8 text-center text-xs text-slate-500">
+            © 2025 Equilibra — Diseñado por Digital Workflows®
+        </div>
+    </footer>
+
+    <!-- Scripts (orden importa) -->
+    <script src="/js/supabaseClient.js"></script>
+    <script src="/js/transactions.js"></script>
+</body>
+
+</html>
