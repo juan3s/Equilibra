@@ -78,11 +78,11 @@ async function loadBankAccounts() {
     tr.appendChild(createElement('td', 'px-4 py-3', bankName || '—'));
 
     const tdActions = createElement('td', 'px-4 py-3 text-right');
-    
+
     const btnEdit = createElement('button', 'px-3 py-1 rounded-md border border-slate-700 hover:bg-slate-800 text-xs', 'Editar');
     btnEdit.setAttribute('data-ba-edit', r.id);
     tdActions.appendChild(btnEdit);
-    
+
     tdActions.appendChild(document.createTextNode(' '));
 
     const btnDel = createElement('button', 'px-3 py-1 rounded-md border border-rose-700 text-rose-300 hover:bg-rose-900/20 text-xs', 'Borrar');
@@ -299,6 +299,149 @@ async function onPocketsTableClick(e) {
 }
 function bindPocketsTable() { $("pockets-tbody")?.addEventListener('click', onPocketsTableClick); }
 
+// =====================================================================
+//                         SUBCATEGORÍAS
+// =====================================================================
+
+let CATEGORIES = []; // {id, name, color, icon}
+
+// Cargar categorías para el dropdown
+async function loadCategories() {
+  const sel = $("sc-category");
+  const { data, error } = await supabase.from('categories').select('id,name').order('name');
+  if (error) {
+    if (sel) sel.innerHTML = `<option value="">—</option>`;
+    return;
+  }
+  CATEGORIES = data || [];
+  if (sel) {
+    sel.innerHTML = '<option value="" disabled selected>Selecciona una categoría…</option>' +
+      CATEGORIES.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  }
+}
+
+function findCategoryName(cat_id) {
+  const c = CATEGORIES.find(x => x.id === cat_id);
+  return c?.name || '—';
+}
+
+// Listado de subcategorías
+async function loadSubcategories() {
+  const uid = await getUserId(); if (!uid) return;
+  const { data, error } = await supabase
+    .from('subcategories')
+    .select('id,name,color,icon,category_id')
+    .eq('user_id', uid)
+    .order('created_at', { ascending: false });
+
+  const tbody = $("subcategories-tbody");
+  const empty = $("subcategories-empty");
+  const msg = $("subcategories-msg");
+
+  if (error) { if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-4 text-red-400">${error.message}</td></tr>`; if (empty) empty.classList.add('hidden'); return; }
+  const rows = data || [];
+  if (!tbody || !empty) return;
+  if (rows.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  tbody.innerHTML = '';
+
+  rows.forEach(r => {
+    const categoryName = findCategoryName(r.category_id);
+    const tr = document.createElement('tr');
+
+    // Nombre
+    tr.appendChild(createElement('td', 'px-4 py-3', r.name || '—'));
+
+    // Color (círculo)
+    const tdColor = createElement('td', 'px-4 py-3');
+    const colorCircle = createElement('div', 'w-4 h-4 rounded-full');
+    colorCircle.style.backgroundColor = r.color || '#ccc';
+    tdColor.appendChild(colorCircle);
+    tr.appendChild(tdColor);
+
+    // Categoría
+    tr.appendChild(createElement('td', 'px-4 py-3', categoryName));
+
+    // Acciones
+    const tdActions = createElement('td', 'px-4 py-3 text-right');
+
+    const btnEdit = createElement('button', 'px-3 py-1 rounded-md border border-slate-700 hover:bg-slate-800 text-xs', 'Editar');
+    btnEdit.setAttribute('data-sc-edit', r.id);
+    tdActions.appendChild(btnEdit);
+
+    tdActions.appendChild(document.createTextNode(' '));
+
+    const btnDel = createElement('button', 'px-3 py-1 rounded-md border border-rose-700 text-rose-300 hover:bg-rose-900/20 text-xs', 'Borrar');
+    btnDel.setAttribute('data-sc-del', r.id);
+    tdActions.appendChild(btnDel);
+
+    tr.appendChild(tdActions);
+    tbody.appendChild(tr);
+  });
+  msg && (msg.textContent = '');
+}
+
+// Modal subcategorías
+function toggleSCModal(show) { const m = $("subcategory-modal"); if (!m) return; m.classList.toggle('hidden', !show); }
+function setSCError(el, show) { el?.classList.toggle('hidden', !show); }
+function fillSCForm(s = {}) {
+  $("sc-id").value = s.id || '';
+  $("sc-name").value = s.name || '';
+  $("sc-category").value = s.category_id || '';
+  $("sc-icon").value = s.icon || '';
+  $("sc-color").value = s.color || '#4f46e5';
+  $("scmodal-title").textContent = s.id ? 'Editar subcategoría' : 'Agregar subcategoría';
+  $("scmodal-msg").textContent = '';
+  setSCError($("err-sc-name"), false); setSCError($("err-sc-category"), false);
+}
+function bindSCModal() {
+  $("btn-new-subcategory")?.addEventListener('click', () => { fillSCForm(); toggleSCModal(true); });
+  document.querySelectorAll('[data-close-scmodal]').forEach(el => el.addEventListener('click', () => toggleSCModal(false)));
+  $("subcategory-form")?.addEventListener('submit', upsertSubcategory);
+}
+
+// Acciones CRUD subcategorías
+async function upsertSubcategory(e) {
+  e.preventDefault();
+  const uid = await getUserId(); if (!uid) return;
+  const id = $("sc-id").value || undefined;
+  const name = $("sc-name").value.trim();
+  const category_id = $("sc-category").value;
+  const icon = $("sc-icon").value.trim() || null;
+  const color = $("sc-color").value;
+
+  let valid = true;
+  setSCError($("err-sc-name"), false); setSCError($("err-sc-category"), false);
+  if (!name) { setSCError($("err-sc-name"), true); valid = false; }
+  if (!category_id) { setSCError($("err-sc-category"), true); valid = false; }
+  if (!valid) return;
+
+  const payload = { id, user_id: uid, name, category_id, icon, color };
+  const { error } = await supabase.from('subcategories').upsert(payload).select('id').single();
+  $("scmodal-msg").textContent = error ? error.message : 'Guardado ✅';
+  if (!error) { await loadSubcategories(); setTimeout(() => toggleSCModal(false), 400); }
+}
+
+async function onSubcategoriesTableClick(e) {
+  const editBtn = e.target.closest('[data-sc-edit]');
+  const delBtn = e.target.closest('[data-sc-del]');
+  if (editBtn) {
+    const id = editBtn.getAttribute('data-sc-edit');
+    const { data, error } = await supabase.from('subcategories').select('*').eq('id', id).single();
+    if (error) return alert(error.message);
+    fillSCForm(data); toggleSCModal(true); return;
+  }
+  if (delBtn) {
+    const id = delBtn.getAttribute('data-sc-del');
+    if (!confirm('¿Eliminar esta subcategoría? Esta acción no se puede deshacer.')) return;
+    const { error } = await supabase.from('subcategories').delete().eq('id', id);
+    if (error) return alert(error.message);
+    await loadSubcategories();
+  }
+}
+function bindSubcategoriesTable() { $("subcategories-tbody")?.addEventListener('click', onSubcategoriesTableClick); }
+
+
 // ---------- Init ----------
 async function initAccountPage() {
   const session = await requireSessionOrRedirect(); if (!session) return;
@@ -320,6 +463,12 @@ async function initAccountPage() {
   await loadPockets();
   bindPOModal();
   bindPocketsTable();
+
+  // Subcategorías
+  await loadCategories();
+  await loadSubcategories();
+  bindSCModal();
+  bindSubcategoriesTable();
 }
 
 initAccountPage();
