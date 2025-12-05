@@ -57,7 +57,8 @@
                 <button id="user-menu-button"
                     class="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-700 hover:border-slate-600 hover:bg-slate-800 text-sm">
                     <span id="user-name-header">Usuario</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 opacity-70" viewBox="0 0 20 20" fill="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 opacity-70" viewBox="0 0 20 20"
+                        fill="currentColor">
                         <path fill-rule="evenodd"
                             d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
                             clip-rule="evenodd" />
@@ -69,9 +70,11 @@
                         class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Dashboard</a>
                     <a href="/transactions.html"
                         class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Transacciones</a>
-                    <a href="/account.html" class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Mis
+                    <a href="/account.html"
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Mis
                         Ajustes</a>
-                    <button id="btn-logout" class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Cerrar
+                    <button id="btn-logout"
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Cerrar
                         sesión</button>
                 </div>
             </nav>
@@ -81,11 +84,158 @@
     <!-- Main -->
     <main class="flex-1">
         <section class="container mx-auto px-5 py-10 md:py-14">
-            <h1 class="text-3xl md:text-4xl font-bold leading-tight">Transacciones</h1>
-            <p class="mt-4 text-slate-300 md:text-lg max-w-2xl">
-                En esta página se realizará el registro de transacciones sobre las cuentas.
-            </p>
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold leading-tight">Transacciones</h1>
+                    <p class="mt-2 text-slate-300 md:text-lg max-w-2xl">
+                        Registro de transacciones sobre las cuentas.
+                    </p>
+                </div>
+                <button id="btn-new-transaction"
+                    class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 font-medium text-white shadow-lg shadow-emerald-900/20 transition-all">
+                    Agregar transacción
+                </button>
+            </div>
+
+            <!-- Grid de Transacciones -->
+            <div class="rounded-2xl bg-slate-900/60 border border-slate-800 shadow-xl overflow-hidden backdrop-blur-sm">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm text-left">
+                        <thead
+                            class="bg-slate-900/80 text-slate-300 border-b border-slate-800 uppercase tracking-wider text-xs font-medium">
+                            <tr>
+                                <th class="px-6 py-4">Fecha</th>
+                                <th class="px-6 py-4">Descripción</th>
+                                <th class="px-6 py-4">Cuenta</th>
+                                <th class="px-6 py-4">Categoría</th>
+                                <th class="px-6 py-4">Subcategoría</th>
+                                <th class="px-6 py-4">Moneda</th>
+                                <th class="px-6 py-4 text-right">Valor</th>
+                                <th class="px-6 py-4 text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-tbody" class="divide-y divide-slate-800 text-slate-300">
+                            <!-- Rows injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="transactions-empty" class="p-10 text-center text-slate-400 hidden">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 opacity-50" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <p class="text-lg font-medium text-slate-300">No hay transacciones</p>
+                    <p class="text-sm mt-1">Comienza registrando tus movimientos financieros.</p>
+                </div>
+            </div>
+            <p id="transactions-msg" class="mt-3 text-sm text-slate-300"></p>
         </section>
+
+        <!-- Modal Crear/Editar Transacción -->
+        <div id="transaction-modal" class="fixed inset-0 z-50 hidden">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" data-close-txmodal></div>
+            <div
+                class="relative w-full max-w-2xl mx-auto mt-10 md:mt-20 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 md:p-8 transform transition-all scale-100">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 id="txmodal-title" class="text-xl font-bold text-white">Agregar transacción</h3>
+                    <button class="text-slate-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-800"
+                        data-close-txmodal>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form id="transaction-form" class="grid grid-cols-1 md:grid-cols-2 gap-6" novalidate>
+                    <input type="hidden" id="tx-id" />
+
+                    <!-- Fecha -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1.5" for="tx-date">Fecha <span
+                                class="text-rose-400">*</span></label>
+                        <input type="date" id="tx-date" required
+                            class="w-full rounded-lg bg-slate-800 border border-slate-700 px-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none" />
+                        <p id="err-tx-date" class="mt-1 text-xs text-rose-400 hidden">La fecha es obligatoria.</p>
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-300 mb-1.5" for="tx-desc">Descripción</label>
+                        <input type="text" id="tx-desc" placeholder="Ej. Compra de supermercado"
+                            class="w-full rounded-lg bg-slate-800 border border-slate-700 px-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none" />
+                    </div>
+
+                    <!-- Cuenta -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1.5" for="tx-account">Cuenta <span
+                                class="text-rose-400">*</span></label>
+                        <select id="tx-account" required
+                            class="w-full rounded-lg bg-slate-800 border border-slate-700 px-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_1rem_center] bg-no-repeat pr-10">
+                        </select>
+                        <p id="err-tx-account" class="mt-1 text-xs text-rose-400 hidden">Selecciona una cuenta.</p>
+                    </div>
+
+                    <!-- Moneda -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1.5" for="tx-currency">Moneda <span
+                                class="text-rose-400">*</span></label>
+                        <select id="tx-currency" required
+                            class="w-full rounded-lg bg-slate-800 border border-slate-700 px-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_1rem_center] bg-no-repeat pr-10">
+                        </select>
+                        <p id="err-tx-currency" class="mt-1 text-xs text-rose-400 hidden">Selecciona una moneda.</p>
+                    </div>
+
+                    <!-- Categoría -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1.5" for="tx-category">Categoría <span
+                                class="text-rose-400">*</span></label>
+                        <select id="tx-category" required
+                            class="w-full rounded-lg bg-slate-800 border border-slate-700 px-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_1rem_center] bg-no-repeat pr-10">
+                        </select>
+                        <p id="err-tx-category" class="mt-1 text-xs text-rose-400 hidden">Selecciona una categoría.</p>
+                    </div>
+
+                    <!-- Subcategoría -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-1.5"
+                            for="tx-subcategory">Subcategoría</label>
+                        <select id="tx-subcategory" disabled
+                            class="w-full rounded-lg bg-slate-800 border border-slate-700 px-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none disabled:opacity-50 disabled:cursor-not-allowed appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-[right_1rem_center] bg-no-repeat pr-10">
+                            <option value="">—</option>
+                        </select>
+                    </div>
+
+                    <!-- Valor -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-300 mb-1.5" for="tx-amount">Valor <span
+                                class="text-rose-400">*</span></label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                            <input type="number" id="tx-amount" required min="0" step="0.01" placeholder="0.00"
+                                class="w-full rounded-lg bg-slate-800 border border-slate-700 pl-8 pr-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none" />
+                        </div>
+                        <p id="err-tx-amount" class="mt-1 text-xs text-rose-400 hidden">El valor es obligatorio y debe
+                            ser positivo.</p>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="md:col-span-2 flex items-center justify-end gap-3 mt-4 pt-4 border-t border-slate-800">
+                        <button type="button"
+                            class="px-5 py-2.5 rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                            data-close-txmodal>Cancelar</button>
+                        <button type="submit"
+                            class="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium shadow-lg shadow-indigo-900/20 transition-all">Guardar</button>
+                    </div>
+
+                    <p id="txmodal-msg" class="md:col-span-2 text-sm text-center text-slate-300"></p>
+                </form>
+            </div>
+        </div>
     </main>
 
     <!-- Footer -->
