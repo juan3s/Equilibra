@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Equilibra — Iniciar sesión</title>
+    <meta name="description" content="Accede a Equilibra para registrar ingresos y gastos y ver tu balance mensual." />
+
+    <!-- UI base -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="/assets/favicon-iHD4iR7P.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.png" />
+
+    <!-- Supabase (UMD) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script type="module" crossorigin src="/assets/login-KssrT4hR.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/supabaseClient-B0Gv5ww8.js">
+  <link rel="stylesheet" crossorigin href="/assets/supabaseClient--8tW_P26.css">
+</head>
+
+<body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="w-full sticky top-0 z-30 glass border-b border-slate-800">
+        <div class="container mx-auto px-5 py-4 flex items-center justify-between">
+            <a href="/index.html" class="flex items-center gap-3 group">
+                <img src="data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='1024'%20height='1024'%20viewBox='0%200%20512%20512'%20xmlns='http://www.w3.org/2000/svg'%3e%3ctitle%3eEquilibra%20Icon%20(Vector)%3c/title%3e%3cdesc%3eVector%20recreation%20of%20the%20provided%20logo:%20indigo%20ring%20with%20green%20balanced%20chevron/triangle.%3c/desc%3e%3c!--%20Colors%20(approximate%20from%20the%20preview)%20--%3e%3cdefs%3e%3cstyle%3e%20.indigo%20{%20fill:%20none;%20stroke:%20%234F46E5;%20}%20.emerald%20{%20fill:%20%2310B981;%20}%20%3c/style%3e%3c/defs%3e%3c!--%20Indigo%20ring%20--%3e%3ccircle%20cx='256'%20cy='256'%20r='180'%20class='indigo'%20stroke-width='56'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3c!--%20Emerald%20balanced%20chevron%20with%20inner%20cutout%20--%3e%3c!--%20Outer%20triangle%20--%3e%3cpath%20fill-rule='evenodd'%20class='emerald'%20d='%20M%20112%20356%20L%20256%20148%20L%20400%20356%20Z%20M%20206%20356%20L%20256%20286%20L%20306%20356%20Z%20'/%3e%3c/svg%3e" alt="Equilibra" class="w-8 h-8" />
+                <span class="font-semibold tracking-tight group-hover:text-indigo-300">Equilibra</span>
+            </a>
+            <nav class="flex items-center gap-3 text-sm text-slate-400">
+                <a href="/index.html" class="hover:text-slate-200">Inicio</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-1 flex items-center justify-center p-6">
+        <div class="w-full max-w-md">
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl shadow-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h1 class="text-xl font-semibold">Iniciar sesión</h1>
+                    <span class="text-xs text-slate-400">Equilibra • Auth</span>
+                </div>
+
+                <!-- Auth panels -->
+                <div id="auth-panels">
+                    <!-- Sign In -->
+                    <form id="form-signin" class="space-y-4">
+                        <div>
+                            <label class="block text-sm mb-1" for="si-email">Email</label>
+                            <input id="si-email" type="email" required placeholder="alguien@example.com"
+                                class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-1" for="si-password">Contraseña</label>
+                            <input id="si-password" type="password" required placeholder="••••••••"
+                                class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+                        </div>
+                        <button type="submit"
+                            class="w-full rounded-lg bg-indigo-600 hover:bg-indigo-500 transition py-2 font-medium">Entrar</button>
+                        <div class="flex items-center justify-between text-sm text-slate-400">
+                            <p>¿No tienes cuenta? <a href="#" id="go-signup"
+                                    class="text-indigo-400 hover:underline">Regístrate</a></p>
+                            <button id="btn-forgot" type="button" class="hover:text-slate-200">¿Olvidaste tu
+                                contraseña?</button>
+                        </div>
+                    </form>
+
+                    <!-- Sign Up -->
+                    <form id="form-signup" class="space-y-4 hidden">
+                        <div>
+                            <label class="block text-sm mb-1" for="su-email">Email</label>
+                            <input id="su-email" type="email" required placeholder="persona@dominio.com"
+                                class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+                        </div>
+                        <div>
+                            <label class="block text-sm mb-1" for="su-password">Contraseña</label>
+                            <input id="su-password" type="password" required minlength="6"
+                                placeholder="Mín. 6 caracteres"
+                                class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+                        </div>
+                        <button type="submit"
+                            class="w-full rounded-lg bg-emerald-600 hover:bg-emerald-500 transition py-2 font-medium">Crear
+                            cuenta</button>
+                        <p class="text-sm text-slate-400 text-center">¿Ya tienes cuenta? <a href="#" id="go-signin"
+                                class="text-indigo-400 hover:underline">Inicia sesión</a></p>
+                    </form>
+
+                    <!-- Reset (solo enviar email) -->
+                    <form id="form-reset" class="space-y-4 hidden">
+                        <div>
+                            <label class="block text-sm mb-1" for="re-email">Email</label>
+                            <input id="re-email" type="email" required placeholder="tu@email.com"
+                                class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+                        </div>
+                        <button type="submit"
+                            class="w-full rounded-lg bg-amber-600 hover:bg-amber-500 transition py-2 font-medium">Enviar
+                            enlace de restablecimiento</button>
+                        <p class="text-sm text-slate-400 text-center"><a href="#" id="go-back-login"
+                                class="text-indigo-400 hover:underline">Volver a iniciar sesión</a></p>
+                    </form>
+                </div>
+
+                <!-- App (se muestra con sesión activa) 
+                <section id="app" class="hidden">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-slate-400">Sesión iniciada</p>
+                            <p class="text-lg font-medium" id="user-email">—</p>
+                        </div>
+                        <button id="btn-signout"
+                            class="rounded-lg bg-slate-800 border border-slate-700 hover:bg-slate-700 px-4 py-2">Salir</button>
+                    </div>
+                    <div class="mt-6 text-sm text-slate-400">
+                        <p>Desde aquí ya puedes cargar tu app (p. ej., Equilibra) sabiendo que el usuario está
+                            autenticado.</p>
+                    </div>
+                </section> -->
+
+                <!-- Feedback -->
+                <div id="toast" class="mt-4 text-sm"></div>
+            </div>
+
+            <p class="mt-6 text-center text-xs text-slate-500">Diseñado por Digital Workflows®</p>
+        </div>
+    </main>
+
+    <!-- Scripts (orden importa) -->
+
+    <!-- Abrir panel de registro si viene ?signup=1 -->
+    <script>
+        (function openSignupIfRequested() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('signup') === '1') {
+                const signin = document.getElementById('form-signin');
+                const signup = document.getElementById('form-signup');
+                const reset = document.getElementById('form-reset');
+                if (signin && signup) {
+                    signin.classList.add('hidden');
+                    reset?.classList.add('hidden');
+                    signup.classList.remove('hidden');
+                }
+            }
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Equilibra — Finanzas personales, sin fricción</title>
+    <meta name="description"
+        content="Equilibra es una aplicación de finanzas personales para registrar ingresos y gastos, visualizar tu balance y tomar mejores decisiones con tus datos." />
+    <link rel="icon" type="image/x-icon" href="/assets/favicon-iHD4iR7P.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #0b1220;
+            --muted: #94a3b8;
+            --text: #e5e7eb;
+            --primary: #4f46e5;
+            --accent: #10b981;
+        }
+
+        body {
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text)
+        }
+
+        .glass {
+            background: linear-gradient(180deg, rgba(15, 23, 42, .7), rgba(15, 23, 42, .5));
+            backdrop-filter: blur(6px);
+        }
+
+        .container {
+            max-width: 1100px
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    <!-- Header -->
+    <header class="w-full sticky top-0 z-30 glass border-b border-slate-800">
+        <div class="container mx-auto px-5 py-4 flex items-center justify-between">
+            <a href="/index.html" class="flex items-center gap-3 group">
+                <img src="data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='1024'%20height='1024'%20viewBox='0%200%20512%20512'%20xmlns='http://www.w3.org/2000/svg'%3e%3ctitle%3eEquilibra%20Icon%20(Vector)%3c/title%3e%3cdesc%3eVector%20recreation%20of%20the%20provided%20logo:%20indigo%20ring%20with%20green%20balanced%20chevron/triangle.%3c/desc%3e%3c!--%20Colors%20(approximate%20from%20the%20preview)%20--%3e%3cdefs%3e%3cstyle%3e%20.indigo%20{%20fill:%20none;%20stroke:%20%234F46E5;%20}%20.emerald%20{%20fill:%20%2310B981;%20}%20%3c/style%3e%3c/defs%3e%3c!--%20Indigo%20ring%20--%3e%3ccircle%20cx='256'%20cy='256'%20r='180'%20class='indigo'%20stroke-width='56'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3c!--%20Emerald%20balanced%20chevron%20with%20inner%20cutout%20--%3e%3c!--%20Outer%20triangle%20--%3e%3cpath%20fill-rule='evenodd'%20class='emerald'%20d='%20M%20112%20356%20L%20256%20148%20L%20400%20356%20Z%20M%20206%20356%20L%20256%20286%20L%20306%20356%20Z%20'/%3e%3c/svg%3e" alt="Equilibra" class="w-8 h-8" />
+                <span class="font-semibold tracking-tight group-hover:text-indigo-300">Equilibra</span>
+            </a>
+            <nav class="flex items-center gap-3">
+                <a href="/login.html"
+                    class="px-4 py-2 rounded-lg border border-slate-700 hover:border-slate-600 hover:bg-slate-800 text-sm">Iniciar
+                    sesión</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="relative overflow-hidden">
+        <div class="container mx-auto px-5 py-16 md:py-24 grid md:grid-cols-2 items-center gap-10">
+            <div>
+                <h1 class="text-3xl md:text-5xl font-bold leading-tight">
+                    Controla tus finanzas <span class="text-indigo-400">sin fricción</span>
+                </h1>
+                <p class="mt-4 text-slate-300 md:text-lg">
+                    Registra ingresos y gastos en segundos, obtén balances claros por mes y toma decisiones informadas.
+                    Equilibra está diseñado para ser rápido, simple y seguro.
+                </p>
+                <div class="mt-8 flex flex-wrap items-center gap-3">
+                    <a href="/login.html"
+                        class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-medium">
+                        Iniciar sesión
+                    </a>
+                    <a href="/login.html?signup=1"
+                        class="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-slate-700 hover:bg-slate-800 font-medium">
+                        Crear cuenta
+                    </a>
+                </div>
+                <div class="mt-6 flex items-center gap-4 text-sm text-slate-400">
+                    <div class="flex items-center gap-2"><span
+                            class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span> Datos en Supabase</div>
+                    <div class="flex items-center gap-2"><span
+                            class="inline-block w-2 h-2 rounded-full bg-indigo-400"></span> Despliegue en Vercel</div>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="rounded-2xl bg-slate-900/60 border border-slate-800 p-6 shadow-xl">
+                    <div class="flex items-center gap-3">
+                        <img src="data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='1024'%20height='1024'%20viewBox='0%200%20512%20512'%20xmlns='http://www.w3.org/2000/svg'%3e%3ctitle%3eEquilibra%20Icon%20(Vector)%3c/title%3e%3cdesc%3eVector%20recreation%20of%20the%20provided%20logo:%20indigo%20ring%20with%20green%20balanced%20chevron/triangle.%3c/desc%3e%3c!--%20Colors%20(approximate%20from%20the%20preview)%20--%3e%3cdefs%3e%3cstyle%3e%20.indigo%20{%20fill:%20none;%20stroke:%20%234F46E5;%20}%20.emerald%20{%20fill:%20%2310B981;%20}%20%3c/style%3e%3c/defs%3e%3c!--%20Indigo%20ring%20--%3e%3ccircle%20cx='256'%20cy='256'%20r='180'%20class='indigo'%20stroke-width='56'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3c!--%20Emerald%20balanced%20chevron%20with%20inner%20cutout%20--%3e%3c!--%20Outer%20triangle%20--%3e%3cpath%20fill-rule='evenodd'%20class='emerald'%20d='%20M%20112%20356%20L%20256%20148%20L%20400%20356%20Z%20M%20206%20356%20L%20256%20286%20L%20306%20356%20Z%20'/%3e%3c/svg%3e" alt="Equilibra" class="w-10 h-10" />
+                        <div>
+                            <p class="text-slate-300 text-sm">Resumen del mes</p>
+                            <p class="text-xl font-semibold">$ 3,245,100</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+                        <div class="rounded-xl border border-slate-800 p-3">
+                            <p class="text-slate-400">Ingresos</p>
+                            <p class="text-emerald-400 text-lg font-semibold">$ 5,200,000</p>
+                        </div>
+                        <div class="rounded-xl border border-slate-800 p-3">
+                            <p class="text-slate-400">Gastos</p>
+                            <p class="text-rose-400 text-lg font-semibold">$ 1,954,900</p>
+                        </div>
+                    </div>
+                    <p class="mt-4 text-slate-400 text-xs">*Datos de ejemplo</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features minimal -->
+    <section class="py-12 md:py-16 border-t border-slate-800">
+        <div class="container mx-auto px-5 grid md:grid-cols-3 gap-6">
+            <div class="rounded-2xl border border-slate-800 p-6 bg-slate-900/40">
+                <h3 class="font-semibold">Registro ágil</h3>
+                <p class="mt-2 text-slate-400 text-sm">Añade ingresos y gastos en segundos con categorías y
+                    descripciones.</p>
+            </div>
+            <div class="rounded-2xl border border-slate-800 p-6 bg-slate-900/40">
+                <h3 class="font-semibold">Balance claro</h3>
+                <p class="mt-2 text-slate-400 text-sm">Visualiza tu balance mensual y tendencia para decisiones
+                    informadas.</p>
+            </div>
+            <div class="rounded-2xl border border-slate-800 p-6 bg-slate-900/40">
+                <h3 class="font-semibold">Tu data, segura</h3>
+                <p class="mt-2 text-slate-400 text-sm">Autenticación con Supabase y despliegue seguro en Vercel.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA final -->
+    <section class="py-12 md:py-16">
+        <div class="container mx-auto px-5 text-center">
+            <h2 class="text-2xl md:text-3xl font-bold">Empieza a equilibrar tus finanzas hoy</h2>
+            <p class="mt-3 text-slate-300 max-w-2xl mx-auto">Crea tu cuenta gratis y lleva el control de tus números con
+                un flujo simple, rápido y agradable.</p>
+            <div class="mt-6 flex items-center justify-center gap-3">
+                <a href="/login.html?signup=1"
+                    class="px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-medium">Crear cuenta</a>
+                <a href="/login.html"
+                    class="px-5 py-3 rounded-xl border border-slate-700 hover:bg-slate-800 font-medium">Iniciar
+                    sesión</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800">
+        <div class="container mx-auto px-5 py-8 text-center text-xs text-slate-500">
+            © 2025 Equilibra — Diseñado por Digital Workflows®
+        </div>
+    </footer>
+</body>
+
+</html>

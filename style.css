@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg text-text font-sans;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-slate-900/70 backdrop-blur-md;
+  }
+  
+  .container {
+    @apply max-w-[1100px];
+  }
+}

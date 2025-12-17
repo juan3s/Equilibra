@@ -1,0 +1,115 @@
+<!-- ============================ dashboard.html ============================ -->
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Equilibra — Inicio</title>
+    <meta name="description" content="Panel inicial de Equilibra para ver tu saludo y estado general." />
+    <link rel="icon" type="image/x-icon" href="/assets/favicon-iHD4iR7P.ico" />
+
+    <!-- UI base -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Supabase (UMD) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script type="module" crossorigin src="/assets/dashboard-D8ZigP_y.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/supabaseClient-B0Gv5ww8.js">
+  <link rel="stylesheet" crossorigin href="/assets/supabaseClient--8tW_P26.css">
+</head>
+
+<body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="w-full sticky top-0 z-30 glass border-b border-slate-800">
+        <div class="container mx-auto px-5 py-4 flex items-center justify-between">
+            <a href="/index.html" class="flex items-center gap-3 group">
+                <img src="data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='1024'%20height='1024'%20viewBox='0%200%20512%20512'%20xmlns='http://www.w3.org/2000/svg'%3e%3ctitle%3eEquilibra%20Icon%20(Vector)%3c/title%3e%3cdesc%3eVector%20recreation%20of%20the%20provided%20logo:%20indigo%20ring%20with%20green%20balanced%20chevron/triangle.%3c/desc%3e%3c!--%20Colors%20(approximate%20from%20the%20preview)%20--%3e%3cdefs%3e%3cstyle%3e%20.indigo%20{%20fill:%20none;%20stroke:%20%234F46E5;%20}%20.emerald%20{%20fill:%20%2310B981;%20}%20%3c/style%3e%3c/defs%3e%3c!--%20Indigo%20ring%20--%3e%3ccircle%20cx='256'%20cy='256'%20r='180'%20class='indigo'%20stroke-width='56'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3c!--%20Emerald%20balanced%20chevron%20with%20inner%20cutout%20--%3e%3c!--%20Outer%20triangle%20--%3e%3cpath%20fill-rule='evenodd'%20class='emerald'%20d='%20M%20112%20356%20L%20256%20148%20L%20400%20356%20Z%20M%20206%20356%20L%20256%20286%20L%20306%20356%20Z%20'/%3e%3c/svg%3e" alt="Equilibra" class="w-8 h-8" />
+                <span class="font-semibold tracking-tight group-hover:text-indigo-300">Equilibra</span>
+            </a>
+            <!-- User menu -->
+            <nav class="relative">
+                <button id="user-menu-button"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-700 hover:border-slate-600 hover:bg-slate-800 text-sm">
+                    <span id="user-name-header">Usuario</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 opacity-70" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div id="user-menu"
+                    class="absolute right-0 mt-2 w-44 rounded-lg border border-slate-700 bg-slate-900/90 backdrop-blur p-1 hidden shadow-xl">
+                    <a href="/dashboard.html"
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Dashboard</a>
+                    <a href="/transactions.html"
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Transacciones</a>
+                    <a href="/account.html"
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Mis
+                        Ajustes</a>
+                    <button id="btn-logout"
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Cerrar
+                        sesión</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-1">
+        <section class="container mx-auto px-5 py-10 md:py-14">
+            <div class="grid md:grid-cols-2 gap-8 items-start">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold leading-tight">Hola <span id="user-name-greeting"
+                            class="text-indigo-400">—</span> 👋</h1>
+                    <p class="mt-4 text-slate-300 md:text-lg max-w-2xl">
+                        Bienvenido a tu panel de inicio. Aquí encontrarás la información inicial de tus finanzas
+                        personales:
+                        un resumen claro de ingresos, gastos y balance. Muy pronto verás nuevas funcionalidades
+                        disponibles
+                        como presupuestos, metas de ahorro y alertas inteligentes.
+                    </p>
+                    <div id="tip" class="mt-6 text-sm text-slate-400">
+                        Consejo: mantén tus registros al día para visualizar mejor tus hábitos financieros.
+                    </div>
+                </div>
+
+                <!-- Tarjeta de estado futuro (placeholder) -->
+                <div class="rounded-2xl bg-slate-900/60 border border-slate-800 p-6 shadow-xl">
+                    <div class="flex items-center gap-3">
+                        <img src="data:image/svg+xml,%3c?xml%20version='1.0'%20encoding='UTF-8'?%3e%3csvg%20width='1024'%20height='1024'%20viewBox='0%200%20512%20512'%20xmlns='http://www.w3.org/2000/svg'%3e%3ctitle%3eEquilibra%20Icon%20(Vector)%3c/title%3e%3cdesc%3eVector%20recreation%20of%20the%20provided%20logo:%20indigo%20ring%20with%20green%20balanced%20chevron/triangle.%3c/desc%3e%3c!--%20Colors%20(approximate%20from%20the%20preview)%20--%3e%3cdefs%3e%3cstyle%3e%20.indigo%20{%20fill:%20none;%20stroke:%20%234F46E5;%20}%20.emerald%20{%20fill:%20%2310B981;%20}%20%3c/style%3e%3c/defs%3e%3c!--%20Indigo%20ring%20--%3e%3ccircle%20cx='256'%20cy='256'%20r='180'%20class='indigo'%20stroke-width='56'%20stroke-linecap='round'%20stroke-linejoin='round'/%3e%3c!--%20Emerald%20balanced%20chevron%20with%20inner%20cutout%20--%3e%3c!--%20Outer%20triangle%20--%3e%3cpath%20fill-rule='evenodd'%20class='emerald'%20d='%20M%20112%20356%20L%20256%20148%20L%20400%20356%20Z%20M%20206%20356%20L%20256%20286%20L%20306%20356%20Z%20'/%3e%3c/svg%3e" alt="Equilibra" class="w-10 h-10" />
+                        <div>
+                            <p class="text-slate-300 text-sm">Próximamente</p>
+                            <p class="text-xl font-semibold">Widgets financieros</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+                        <div class="rounded-xl border border-slate-800 p-3">
+                            <p class="text-slate-400">Ingresos</p>
+                            <p class="text-emerald-400 text-lg font-semibold">—</p>
+                        </div>
+                        <div class="rounded-xl border border-slate-800 p-3">
+                            <p class="text-slate-400">Gastos</p>
+                            <p class="text-rose-400 text-lg font-semibold">—</p>
+                        </div>
+                    </div>
+                    <p class="mt-4 text-slate-400 text-xs">*Este panel se activará cuando conectemos tus datos.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800">
+        <div class="container mx-auto px-5 py-8 text-center text-xs text-slate-500">
+            © 2025 Equilibra — Diseñado por Digital Workflows®
+        </div>
+    </footer>
+
+    <!-- Scripts (orden importa) -->
+</body>
+
+</html>
