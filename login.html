@@ -21,14 +21,14 @@
 
 <body class="min-h-screen flex flex-col">
     <!-- Header -->
-    <header class="w-full sticky top-0 z-30 glass border-b border-slate-800">
+    <header class="w-full sticky top-0 z-30 glass border-b border-gray-200">
         <div class="container mx-auto px-5 py-4 flex items-center justify-between">
             <a href="/index.html" class="flex items-center gap-3 group">
                 <img src="/assets/logo-equilibra.svg" alt="Equilibra" class="w-8 h-8" />
-                <span class="font-semibold tracking-tight group-hover:text-indigo-300">Equilibra</span>
+                <span class="font-semibold tracking-tight text-slate-800 group-hover:text-indigo-600">Equilibra</span>
             </a>
-            <nav class="flex items-center gap-3 text-sm text-slate-400">
-                <a href="/index.html" class="hover:text-slate-200">Inicio</a>
+            <nav class="flex items-center gap-3 text-sm text-slate-500">
+                <a href="/index.html" class="hover:text-slate-700">Inicio</a>
             </nav>
         </div>
     </header>
@@ -36,10 +36,10 @@
     <!-- Main -->
     <main class="flex-1 flex items-center justify-center p-6">
         <div class="w-full max-w-md">
-            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl shadow-xl p-6">
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-xl p-6">
                 <div class="flex items-center justify-between mb-4">
-                    <h1 class="text-xl font-semibold">Iniciar sesión</h1>
-                    <span class="text-xs text-slate-400">Equilibra • Auth</span>
+                    <h1 class="text-xl font-semibold text-slate-900">Iniciar sesión</h1>
+                    <span class="text-xs text-slate-500">Equilibra • Auth</span>
                 </div>
 
                 <!-- Auth panels -->
@@ -47,21 +47,21 @@
                     <!-- Sign In -->
                     <form id="form-signin" class="space-y-4">
                         <div>
-                            <label class="block text-sm mb-1" for="si-email">Email</label>
+                            <label class="block text-sm mb-1 text-slate-700" for="si-email">Email</label>
                             <input id="si-email" type="email" required placeholder="alguien@example.com"
-                                class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+                                class="w-full rounded-lg bg-slate-50 border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" />
                         </div>
                         <div>
-                            <label class="block text-sm mb-1" for="si-password">Contraseña</label>
+                            <label class="block text-sm mb-1 text-slate-700" for="si-password">Contraseña</label>
                             <input id="si-password" type="password" required placeholder="••••••••"
-                                class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+                                class="w-full rounded-lg bg-slate-50 border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" />
                         </div>
                         <button type="submit"
-                            class="w-full rounded-lg bg-indigo-600 hover:bg-indigo-500 transition py-2 font-medium">Entrar</button>
-                        <div class="flex items-center justify-between text-sm text-slate-400">
+                            class="w-full rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200 transition py-2 font-medium">Entrar</button>
+                        <div class="flex items-center justify-between text-sm text-slate-500">
                             <p>¿No tienes cuenta? <a href="#" id="go-signup"
-                                    class="text-indigo-400 hover:underline">Regístrate</a></p>
-                            <button id="btn-forgot" type="button" class="hover:text-slate-200">¿Olvidaste tu
+                                    class="text-indigo-600 hover:underline">Regístrate</a></p>
+                            <button id="btn-forgot" type="button" class="hover:text-slate-700">¿Olvidaste tu
                                 contraseña?</button>
                         </div>
                     </form>
@@ -69,35 +69,35 @@
                     <!-- Sign Up -->
                     <form id="form-signup" class="space-y-4 hidden">
                         <div>
-                            <label class="block text-sm mb-1" for="su-email">Email</label>
+                            <label class="block text-sm mb-1 text-slate-700" for="su-email">Email</label>
                             <input id="su-email" type="email" required placeholder="persona@dominio.com"
-                                class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+                                class="w-full rounded-lg bg-slate-50 border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" />
                         </div>
                         <div>
-                            <label class="block text-sm mb-1" for="su-password">Contraseña</label>
+                            <label class="block text-sm mb-1 text-slate-700" for="su-password">Contraseña</label>
                             <input id="su-password" type="password" required minlength="6"
                                 placeholder="Mín. 6 caracteres"
-                                class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+                                class="w-full rounded-lg bg-slate-50 border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" />
                         </div>
                         <button type="submit"
-                            class="w-full rounded-lg bg-emerald-600 hover:bg-emerald-500 transition py-2 font-medium">Crear
+                            class="w-full rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-200 transition py-2 font-medium">Crear
                             cuenta</button>
-                        <p class="text-sm text-slate-400 text-center">¿Ya tienes cuenta? <a href="#" id="go-signin"
-                                class="text-indigo-400 hover:underline">Inicia sesión</a></p>
+                        <p class="text-sm text-slate-500 text-center">¿Ya tienes cuenta? <a href="#" id="go-signin"
+                                class="text-indigo-600 hover:underline">Inicia sesión</a></p>
                     </form>
 
                     <!-- Reset (solo enviar email) -->
                     <form id="form-reset" class="space-y-4 hidden">
                         <div>
-                            <label class="block text-sm mb-1" for="re-email">Email</label>
+                            <label class="block text-sm mb-1 text-slate-700" for="re-email">Email</label>
                             <input id="re-email" type="email" required placeholder="tu@email.com"
-                                class="w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500" />
+                                class="w-full rounded-lg bg-slate-50 border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" />
                         </div>
                         <button type="submit"
-                            class="w-full rounded-lg bg-amber-600 hover:bg-amber-500 transition py-2 font-medium">Enviar
+                            class="w-full rounded-lg bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-200 transition py-2 font-medium">Enviar
                             enlace de restablecimiento</button>
-                        <p class="text-sm text-slate-400 text-center"><a href="#" id="go-back-login"
-                                class="text-indigo-400 hover:underline">Volver a iniciar sesión</a></p>
+                        <p class="text-sm text-slate-500 text-center"><a href="#" id="go-back-login"
+                                class="text-indigo-600 hover:underline">Volver a iniciar sesión</a></p>
                     </form>
                 </div>
 

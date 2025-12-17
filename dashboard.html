@@ -21,7 +21,7 @@
 
 <body class="min-h-screen flex flex-col">
     <!-- Header -->
-    <header class="w-full sticky top-0 z-30 glass border-b border-slate-800">
+    <header class="w-full sticky top-0 z-30 glass border-b border-gray-200">
         <div class="container mx-auto px-5 py-4 flex items-center justify-between">
             <a href="/index.html" class="flex items-center gap-3 group">
                 <img src="/assets/logo-equilibra.svg" alt="Equilibra" class="w-8 h-8" />
@@ -30,7 +30,7 @@
             <!-- User menu -->
             <nav class="relative">
                 <button id="user-menu-button"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-700 hover:border-slate-600 hover:bg-slate-800 text-sm">
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-100 text-sm text-slate-700">
                     <span id="user-name-header">Usuario</span>
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 opacity-70" viewBox="0 0 20 20"
                         fill="currentColor">
@@ -40,16 +40,16 @@
                     </svg>
                 </button>
                 <div id="user-menu"
-                    class="absolute right-0 mt-2 w-44 rounded-lg border border-slate-700 bg-slate-900/90 backdrop-blur p-1 hidden shadow-xl">
+                    class="absolute right-0 mt-2 w-44 rounded-lg border border-slate-200 bg-white/95 backdrop-blur p-1 hidden shadow-xl">
                     <a href="/dashboard.html"
-                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Dashboard</a>
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-50 text-sm text-slate-700">Dashboard</a>
                     <a href="/transactions.html"
-                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Transacciones</a>
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-50 text-sm text-slate-700">Transacciones</a>
                     <a href="/account.html"
-                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Mis
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-50 text-sm text-slate-700">Mis
                         Ajustes</a>
                     <button id="btn-logout"
-                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-800 text-sm">Cerrar
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-50 text-sm text-slate-700">Cerrar
                         sesión</button>
                 </div>
             </nav>
@@ -61,37 +61,38 @@
         <section class="container mx-auto px-5 py-10 md:py-14">
             <div class="grid md:grid-cols-2 gap-8 items-start">
                 <div>
-                    <h1 class="text-3xl md:text-4xl font-bold leading-tight">Hola <span id="user-name-greeting"
-                            class="text-indigo-400">—</span> 👋</h1>
-                    <p class="mt-4 text-slate-300 md:text-lg max-w-2xl">
+                    <h1 class="text-3xl md:text-4xl font-bold leading-tight text-slate-900">Hola <span
+                            id="user-name-greeting" class="text-indigo-600">—</span> 👋</h1>
+                    <p class="mt-4 text-slate-600 md:text-lg max-w-2xl">
                         Bienvenido a tu panel de inicio. Aquí encontrarás la información inicial de tus finanzas
                         personales:
                         un resumen claro de ingresos, gastos y balance. Muy pronto verás nuevas funcionalidades
                         disponibles
                         como presupuestos, metas de ahorro y alertas inteligentes.
                     </p>
-                    <div id="tip" class="mt-6 text-sm text-slate-400">
+                    <div id="tip" class="mt-6 text-sm text-slate-500">
                         Consejo: mantén tus registros al día para visualizar mejor tus hábitos financieros.
                     </div>
                 </div>
 
                 <!-- Tarjeta de estado futuro (placeholder) -->
-                <div class="rounded-2xl bg-slate-900/60 border border-slate-800 p-6 shadow-xl">
+                <!-- Tarjeta de estado futuro (placeholder) -->
+                <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-xl">
                     <div class="flex items-center gap-3">
                         <img src="/assets/logo-equilibra.svg" alt="Equilibra" class="w-10 h-10" />
                         <div>
-                            <p class="text-slate-300 text-sm">Próximamente</p>
-                            <p class="text-xl font-semibold">Widgets financieros</p>
+                            <p class="text-slate-500 text-sm">Próximamente</p>
+                            <p class="text-xl font-semibold text-slate-900">Widgets financieros</p>
                         </div>
                     </div>
                     <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
-                        <div class="rounded-xl border border-slate-800 p-3">
-                            <p class="text-slate-400">Ingresos</p>
-                            <p class="text-emerald-400 text-lg font-semibold">—</p>
+                        <div class="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                            <p class="text-slate-500">Ingresos</p>
+                            <p class="text-emerald-600 text-lg font-semibold">—</p>
                         </div>
-                        <div class="rounded-xl border border-slate-800 p-3">
-                            <p class="text-slate-400">Gastos</p>
-                            <p class="text-rose-400 text-lg font-semibold">—</p>
+                        <div class="rounded-xl border border-slate-100 bg-slate-50 p-3">
+                            <p class="text-slate-500">Gastos</p>
+                            <p class="text-rose-600 text-lg font-semibold">—</p>
                         </div>
                     </div>
                     <p class="mt-4 text-slate-400 text-xs">*Este panel se activará cuando conectemos tus datos.</p>
@@ -101,7 +102,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="border-t border-slate-800">
+    <footer class="border-t border-slate-200 bg-slate-50">
         <div class="container mx-auto px-5 py-8 text-center text-xs text-slate-500">
             © 2025 Equilibra — Diseñado por Digital Workflows®
         </div>

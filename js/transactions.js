@@ -175,7 +175,7 @@ async function loadTransactions(uid) {
     const msg = $("transactions-msg");
 
     if (error) {
-        if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-4 text-rose-400 text-center">${error.message}</td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="px-6 py-4 text-rose-500 text-center">${error.message}</td></tr>`;
         return;
     }
 
@@ -193,7 +193,7 @@ async function loadTransactions(uid) {
 
     rows.forEach(r => {
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-800/50 transition-colors";
+        tr.className = "hover:bg-slate-50 transition-colors";
 
         // Fecha (formateada simple)
         const dateObj = new Date(r.occurred_at);
@@ -216,10 +216,10 @@ async function loadTransactions(uid) {
         // Acciones
         const tdActions = createElement('td', 'px-6 py-4 text-right whitespace-nowrap');
 
-        const btnEdit = createElement('button', 'text-indigo-400 hover:text-indigo-300 mr-3 transition-colors', 'Editar');
+        const btnEdit = createElement('button', 'text-indigo-600 hover:text-indigo-800 mr-3 transition-colors', 'Editar');
         btnEdit.setAttribute('data-tx-edit', r.id);
 
-        const btnDel = createElement('button', 'text-rose-400 hover:text-rose-300 transition-colors', 'Borrar');
+        const btnDel = createElement('button', 'text-rose-600 hover:text-rose-800 transition-colors', 'Borrar');
         btnDel.setAttribute('data-tx-del', r.id);
 
         tdActions.appendChild(btnEdit);
@@ -326,10 +326,10 @@ async function upsertTransaction(e) {
 
     if (error) {
         $("txmodal-msg").textContent = error.message;
-        $("txmodal-msg").className = "md:col-span-2 text-sm text-center text-rose-400 mt-2";
+        $("txmodal-msg").className = "md:col-span-2 text-sm text-center text-rose-500 mt-2";
     } else {
         $("txmodal-msg").textContent = 'Guardado exitosamente';
-        $("txmodal-msg").className = "md:col-span-2 text-sm text-center text-emerald-400 mt-2";
+        $("txmodal-msg").className = "md:col-span-2 text-sm text-center text-emerald-600 mt-2";
         await loadTransactions(uid);
         setTimeout(() => toggleTxModal(false), 500);
     }

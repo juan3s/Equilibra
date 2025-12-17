@@ -7,12 +7,12 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                bg: '#0f172a',
-                card: '#0b1220',
-                muted: '#94a3b8',
-                text: '#e5e7eb',
-                primary: '#4f46e5',
-                accent: '#10b981',
+                bg: '#f8fafc',      // Slate 50
+                card: '#ffffff',    // White
+                muted: '#64748b',   // Slate 500
+                text: '#1e293b',    // Slate 800
+                primary: '#2563eb', // Royal Blue
+                accent: '#10b981',  // Emerald 500
             },
             fontFamily: {
                 sans: ['Inter', 'system-ui', 'sans-serif'],

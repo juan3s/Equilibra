@@ -9,7 +9,7 @@ const $ = (id) => document.getElementById(id);
 const toggle = (el, show) => el.classList.toggle('hidden', !show);
 const toast = (msg, type = 'info') => {
     const t = $("toast");
-    const styles = { info: "text-slate-300", ok: "text-emerald-400", warn: "text-amber-400", err: "text-red-400" };
+    const styles = { info: "text-slate-600", ok: "text-emerald-600", warn: "text-amber-600", err: "text-rose-600" };
     if (!t) return;
     t.className = `mt-4 text-sm ${styles[type] || styles.info}`;
     t.textContent = msg;

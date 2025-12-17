@@ -5,7 +5,7 @@
 const supabase = window.sb;
 
 const $r = (id) => document.getElementById(id);
-const msg = (t, cls = 'text-slate-300') => { const el = $r('msg'); if (!el) return; el.className = `text-sm mt-2 ${cls}`; el.textContent = t; };
+const msg = (t, cls = 'text-slate-600') => { const el = $r('msg'); if (!el) return; el.className = `text-sm mt-2 ${cls}`; el.textContent = t; };
 
 function parseHashParams() {
     const h = new URLSearchParams(window.location.hash.replace('#', ''));
@@ -31,7 +31,7 @@ async function ensureSessionFromHash() {
 (async function initReset() {
     const session = await ensureSessionFromHash();
     if (!session) {
-        msg('Enlace inválido o caducado. Vuelve a solicitar el restablecimiento.', 'text-red-400');
+        msg('Enlace inválido o caducado. Vuelve a solicitar el restablecimiento.', 'text-rose-600');
     }
 })();
 
@@ -39,10 +39,10 @@ $r('form-new-pass')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const p1 = $r('new-pass').value;
     const p2 = $r('confirm-pass').value;
-    if (p1 !== p2) return msg('Las contraseñas no coinciden.', 'text-amber-400');
+    if (p1 !== p2) return msg('Las contraseñas no coinciden.', 'text-amber-600');
     msg('Actualizando contraseña…');
     const { data, error } = await supabase.auth.updateUser({ password: p1 });
-    if (error) return msg(error.message, 'text-red-400');
-    msg('¡Contraseña actualizada! Ya puedes volver a iniciar sesión.', 'text-emerald-400');
+    if (error) return msg(error.message, 'text-rose-600');
+    msg('¡Contraseña actualizada! Ya puedes volver a iniciar sesión.', 'text-emerald-600');
     setTimeout(() => (window.location.href = "/login.html"), 800);
 });

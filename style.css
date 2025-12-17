@@ -10,7 +10,7 @@
 
 @layer components {
   .glass {
-    @apply bg-slate-900/70 backdrop-blur-md;
+    @apply bg-white/70 backdrop-blur-md;
   }
   
   .container {

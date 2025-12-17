@@ -62,7 +62,7 @@ async function loadBankAccounts() {
   const tbody = $("bank-accounts-tbody");
   const empty = $("bank-accounts-empty");
   const msg = $("bank-accounts-msg");
-  if (error) { if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-4 text-red-400">${error.message}</td></tr>`; if (empty) empty.classList.add('hidden'); return; }
+  if (error) { if (tbody) tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-4 text-rose-500">${error.message}</td></tr>`; if (empty) empty.classList.add('hidden'); return; }
   const rows = data || [];
   if (!tbody || !empty) return;
   if (rows.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
@@ -79,13 +79,13 @@ async function loadBankAccounts() {
 
     const tdActions = createElement('td', 'px-4 py-3 text-right');
 
-    const btnEdit = createElement('button', 'px-3 py-1 rounded-md border border-slate-700 hover:bg-slate-800 text-xs', 'Editar');
+    const btnEdit = createElement('button', 'px-3 py-1 rounded-md border border-slate-300 hover:bg-slate-50 text-xs text-slate-700', 'Editar');
     btnEdit.setAttribute('data-ba-edit', r.id);
     tdActions.appendChild(btnEdit);
 
     tdActions.appendChild(document.createTextNode(' '));
 
-    const btnDel = createElement('button', 'px-3 py-1 rounded-md border border-rose-700 text-rose-300 hover:bg-rose-900/20 text-xs', 'Borrar');
+    const btnDel = createElement('button', 'px-3 py-1 rounded-md border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs', 'Borrar');
     btnDel.setAttribute('data-ba-del', r.id);
     tdActions.appendChild(btnDel);
 
@@ -210,7 +210,7 @@ async function loadPockets() {
   const tbody = $("pockets-tbody");
   const empty = $("pockets-empty");
   const msg = $("pockets-msg");
-  if (error) { if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-4 text-red-400">${error.message}</td></tr>`; if (empty) empty.classList.add('hidden'); return; }
+  if (error) { if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-4 text-rose-500">${error.message}</td></tr>`; if (empty) empty.classList.add('hidden'); return; }
   const rows = data || [];
   if (!tbody || !empty) return;
   if (rows.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
@@ -227,13 +227,13 @@ async function loadPockets() {
 
     const tdActions = createElement('td', 'px-4 py-3 text-right');
 
-    const btnEdit = createElement('button', 'px-3 py-1 rounded-md border border-slate-700 hover:bg-slate-800 text-xs', 'Editar');
+    const btnEdit = createElement('button', 'px-3 py-1 rounded-md border border-slate-300 hover:bg-slate-50 text-xs text-slate-700', 'Editar');
     btnEdit.setAttribute('data-po-edit', r.id);
     tdActions.appendChild(btnEdit);
 
     tdActions.appendChild(document.createTextNode(' '));
 
-    const btnDel = createElement('button', 'px-3 py-1 rounded-md border border-rose-700 text-rose-300 hover:bg-rose-900/20 text-xs', 'Borrar');
+    const btnDel = createElement('button', 'px-3 py-1 rounded-md border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs', 'Borrar');
     btnDel.setAttribute('data-po-del', r.id);
     tdActions.appendChild(btnDel);
 
@@ -338,7 +338,7 @@ async function loadSubcategories() {
   const empty = $("subcategories-empty");
   const msg = $("subcategories-msg");
 
-  if (error) { if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-4 text-red-400">${error.message}</td></tr>`; if (empty) empty.classList.add('hidden'); return; }
+  if (error) { if (tbody) tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-4 text-rose-500">${error.message}</td></tr>`; if (empty) empty.classList.add('hidden'); return; }
   const rows = data || [];
   if (!tbody || !empty) return;
   if (rows.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
@@ -365,13 +365,13 @@ async function loadSubcategories() {
     // Acciones
     const tdActions = createElement('td', 'px-4 py-3 text-right');
 
-    const btnEdit = createElement('button', 'px-3 py-1 rounded-md border border-slate-700 hover:bg-slate-800 text-xs', 'Editar');
+    const btnEdit = createElement('button', 'px-3 py-1 rounded-md border border-slate-300 hover:bg-slate-50 text-xs text-slate-700', 'Editar');
     btnEdit.setAttribute('data-sc-edit', r.id);
     tdActions.appendChild(btnEdit);
 
     tdActions.appendChild(document.createTextNode(' '));
 
-    const btnDel = createElement('button', 'px-3 py-1 rounded-md border border-rose-700 text-rose-300 hover:bg-rose-900/20 text-xs', 'Borrar');
+    const btnDel = createElement('button', 'px-3 py-1 rounded-md border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs', 'Borrar');
     btnDel.setAttribute('data-sc-del', r.id);
     tdActions.appendChild(btnDel);
 
