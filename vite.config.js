@@ -10,6 +10,7 @@ export default defineConfig({
                 dashboard: resolve(__dirname, 'dashboard.html'),
                 account: resolve(__dirname, 'account.html'),
                 reset: resolve(__dirname, 'reset.html'),
+                transactions: resolve(__dirname, 'transactions.html'),
             },
         },
     },
