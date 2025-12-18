@@ -1,5 +1,6 @@
 
-import { supabase } from './supabaseClient.js';
+// Cliente compartido desde /js/supabaseClient.js
+const supabase = window.sb;
 
 // Authentication check
 async function checkAuth() {
