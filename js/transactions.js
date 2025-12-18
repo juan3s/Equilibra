@@ -53,6 +53,15 @@ let CATEGORIES = [];
 let SUBCATEGORIES = []; // Todas las subcategorías del usuario
 let CURRENCIES = [];
 
+// ---------- Estado de Filtros ----------
+const now = new Date();
+let FILTER_STATE = {
+    month: now.getMonth(), // 0-11
+    year: now.getFullYear(),
+    categoryIds: new Set(),
+    subcategoryIds: new Set()
+};
+
 // ---------- Carga de Datos Auxiliares ----------
 
 async function loadBankAccounts(uid) {
@@ -143,6 +152,125 @@ function updateSubcategorySelect(categoryId, selectedSubId = null) {
     }
 }
 
+// ---------- Lógica de Filtros UI ----------
+
+function initFilters() {
+    // 1. Periodo: Año
+    const yearSel = $("filter-period-year");
+    const currentYear = new Date().getFullYear();
+    for (let y = currentYear - 2; y <= currentYear + 1; y++) {
+        const opt = createElement('option', '', y);
+        opt.value = y;
+        if (y === FILTER_STATE.year) opt.selected = true;
+        yearSel.appendChild(opt);
+    }
+
+    // Periodo: Mes
+    const monthSel = $("filter-period-month");
+    monthSel.value = FILTER_STATE.month;
+
+    // Listeners Periodo
+    yearSel.addEventListener('change', (e) => {
+        FILTER_STATE.year = parseInt(e.target.value);
+        updateActiveFilterText();
+        reloadTransactions();
+    });
+    monthSel.addEventListener('change', (e) => {
+        FILTER_STATE.month = parseInt(e.target.value);
+        updateActiveFilterText();
+        reloadTransactions();
+    });
+
+    // 2. Multiselects Setup
+    setupMultiSelect('category', 'Categorías');
+    setupMultiSelect('subcategory', 'Subcategorías');
+
+    // Cerrar dropdowns al click fuera
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#dropdown-filter-category') && !e.target.closest('#btn-filter-category')) {
+            $("dropdown-filter-category").classList.add('hidden');
+        }
+        if (!e.target.closest('#dropdown-filter-subcategory') && !e.target.closest('#btn-filter-subcategory')) {
+            $("dropdown-filter-subcategory").classList.add('hidden');
+        }
+    });
+
+    updateActiveFilterText();
+}
+
+function setupMultiSelect(type, label) {
+    const btn = $(`btn-filter-${type}`);
+    const dropdown = $(`dropdown-filter-${type}`);
+
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('hidden');
+    });
+}
+
+function renderCategoryFilters() {
+    renderMultiSelectOptions('category', CATEGORIES, FILTER_STATE.categoryIds);
+}
+
+function renderSubcategoryFilters() {
+    renderMultiSelectOptions('subcategory', SUBCATEGORIES, FILTER_STATE.subcategoryIds);
+}
+
+function renderMultiSelectOptions(type, items, selectedSet) {
+    const container = $(`dropdown-filter-${type}`);
+    container.innerHTML = '';
+
+    if (items.length === 0) {
+        container.innerHTML = '<div class="text-xs text-slate-400 p-2 text-center">No hay opciones</div>';
+        return;
+    }
+
+    items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = "flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer";
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = "rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4";
+        checkbox.checked = selectedSet.has(item.id);
+
+        const label = document.createElement('span');
+        label.className = "text-sm text-slate-700 flex-1 truncate";
+        label.textContent = item.name;
+
+        // Toggle logic
+        const toggle = () => {
+            if (checkbox.checked) selectedSet.add(item.id);
+            else selectedSet.delete(item.id);
+            reloadTransactions();
+        };
+
+        checkbox.addEventListener('change', toggle);
+        div.addEventListener('click', (e) => {
+            if (e.target !== checkbox) {
+                checkbox.checked = !checkbox.checked;
+                toggle();
+            }
+        });
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        container.appendChild(div);
+    });
+}
+
+function updateActiveFilterText() {
+    const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    const m = months[FILTER_STATE.month];
+    $("active-filter-period").textContent = `${m} ${FILTER_STATE.year}`;
+}
+
+async function reloadTransactions() {
+    const session = await supabase.auth.getSession();
+    const uid = session.data.session?.user?.id;
+    if (uid) loadTransactions(uid);
+}
+
 function bindCategoryChange() {
     const catSel = $("tx-category");
     catSel?.addEventListener('change', (e) => {
@@ -152,7 +280,11 @@ function bindCategoryChange() {
 
 // ---------- Listado de Transacciones ----------
 async function loadTransactions(uid) {
-    const { data, error } = await supabase
+    // Rangos de fecha (Usando UTC para alinear con cómo Supabase/Postgres guarda fechas "YYYY-MM-DD")
+    const start = new Date(Date.UTC(FILTER_STATE.year, FILTER_STATE.month, 1)).toISOString();
+    const end = new Date(Date.UTC(FILTER_STATE.year, FILTER_STATE.month + 1, 0, 23, 59, 59, 999)).toISOString();
+
+    let query = supabase
         .from('transactions')
         .select(`
             id,
@@ -168,7 +300,19 @@ async function loadTransactions(uid) {
             subcategories (name)
         `)
         .eq('user_id', uid)
+        .gte('occurred_at', start)
+        .lte('occurred_at', end)
         .order('occurred_at', { ascending: false });
+
+    // Filtros dinámicos
+    if (FILTER_STATE.categoryIds.size > 0) {
+        query = query.in('category_id', Array.from(FILTER_STATE.categoryIds));
+    }
+    if (FILTER_STATE.subcategoryIds.size > 0) {
+        query = query.in('subcategory_id', Array.from(FILTER_STATE.subcategoryIds));
+    }
+
+    const { data, error } = await query;
 
     const tbody = $("transactions-tbody");
     const empty = $("transactions-empty");
@@ -394,6 +538,11 @@ async function initTransactions() {
         loadSubcategories(user.id),
         loadCurrencies()
     ]);
+
+    // Init UI Filters (needs data loaded)
+    initFilters();
+    renderCategoryFilters();
+    renderSubcategoryFilters();
 
     bindCategoryChange();
     bindTxModal();
