@@ -296,7 +296,10 @@ async function loadTransactions(uid) {
             category_id,
             subcategory_id,
             bank_accounts (name),
-            categories (name),
+            categories (
+                name,
+                category_types (operation_factor)
+            ),
             subcategories (name)
         `)
         .eq('user_id', uid)
@@ -341,7 +344,7 @@ async function loadTransactions(uid) {
 
         // Fecha (formateada simple)
         const dateObj = new Date(r.occurred_at);
-        const dateStr = dateObj.toLocaleDateString('es-CO', { timeZone: 'UTC' }); // Ajustar según necesidad
+        const dateStr = dateObj.toLocaleDateString('es-CO', { timeZone: 'UTC' });
 
         tr.appendChild(createElement('td', 'px-6 py-4 whitespace-nowrap', dateStr));
         tr.appendChild(createElement('td', 'px-6 py-4', r.description || '—'));
@@ -350,11 +353,17 @@ async function loadTransactions(uid) {
         tr.appendChild(createElement('td', 'px-6 py-4', r.subcategories?.name || '—'));
         tr.appendChild(createElement('td', 'px-6 py-4', r.currency_code));
 
-        // Valor formateado
+        // Valor formateado con Color
         const amountStr = new Intl.NumberFormat('es-CO', { style: 'currency', currency: r.currency_code }).format(r.amount);
-        const tdAmount = createElement('td', 'px-6 py-4 text-right font-medium', amountStr);
-        // Opcional: color si es ingreso/gasto (asumiendo que amount negativo es gasto, o por categoría)
-        // Por ahora simple.
+
+        let colorClass = "text-slate-900"; // Default
+        const factor = r.categories?.category_types?.operation_factor;
+
+        if (factor === 1) colorClass = "text-emerald-600 font-semibold";       // Positivo
+        else if (factor === -1) colorClass = "text-rose-600 font-semibold";    // Negativo
+        else if (factor === 0) colorClass = "text-indigo-600 font-medium";     // Neutro
+
+        const tdAmount = createElement('td', `px-6 py-4 text-right ${colorClass}`, amountStr);
         tr.appendChild(tdAmount);
 
         // Acciones
