@@ -1,0 +1,144 @@
+-- WARNING: This schema is for context only and is not meant to be run.
+-- Table order and constraints may not be valid for execution.
+
+CREATE TABLE public.bank_accounts (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  name text NOT NULL,
+  account_type text,
+  account_number text,
+  currency_code character NOT NULL DEFAULT 'COP'::bpchar,
+  initial_balance numeric NOT NULL DEFAULT 0,
+  description text,
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  bank_id uuid NOT NULL,
+  CONSTRAINT bank_accounts_pkey PRIMARY KEY (id),
+  CONSTRAINT bank_accounts_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+  CONSTRAINT bank_accounts_currency_code_fkey FOREIGN KEY (currency_code) REFERENCES public.currencies(code),
+  CONSTRAINT bank_accounts_bank_id_fkey FOREIGN KEY (bank_id) REFERENCES public.banks(id)
+);
+CREATE TABLE public.banks (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  kind USER-DEFINED NOT NULL DEFAULT 'traditional'::bank_kind,
+  country character NOT NULL DEFAULT 'CO'::bpchar,
+  brand text,
+  slug text,
+  bic_swift text,
+  regulator_code text,
+  website text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT banks_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.categories (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  icon text,
+  color text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  category_type_slug text,
+  CONSTRAINT categories_pkey PRIMARY KEY (id),
+  CONSTRAINT categories_category_type_slug_fkey FOREIGN KEY (category_type_slug) REFERENCES public.category_types(slug)
+);
+CREATE TABLE public.category_types (
+  slug text NOT NULL,
+  name text NOT NULL,
+  operation_factor smallint NOT NULL DEFAULT '-1'::integer,
+  description text,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT category_types_pkey PRIMARY KEY (slug)
+);
+CREATE TABLE public.currencies (
+  code character NOT NULL,
+  name text NOT NULL,
+  symbol text,
+  decimals smallint NOT NULL DEFAULT 2,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT currencies_pkey PRIMARY KEY (code)
+);
+CREATE TABLE public.pocket_allocations (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  bank_account_id uuid NOT NULL,
+  from_pocket_id uuid,
+  to_pocket_id uuid,
+  amount numeric NOT NULL CHECK (amount > 0::numeric),
+  description text,
+  occurred_at timestamp with time zone NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT pocket_allocations_pkey PRIMARY KEY (id),
+  CONSTRAINT pocket_allocations_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+  CONSTRAINT pocket_allocations_bank_account_id_fkey FOREIGN KEY (bank_account_id) REFERENCES public.bank_accounts(id),
+  CONSTRAINT pocket_allocations_from_pocket_id_fkey FOREIGN KEY (from_pocket_id) REFERENCES public.pockets(id),
+  CONSTRAINT pocket_allocations_to_pocket_id_fkey FOREIGN KEY (to_pocket_id) REFERENCES public.pockets(id)
+);
+CREATE TABLE public.pockets (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  bank_account_id uuid NOT NULL,
+  name text NOT NULL,
+  icon text,
+  color text,
+  goal_amount numeric,
+  initial_amount numeric NOT NULL DEFAULT 0,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT pockets_pkey PRIMARY KEY (id),
+  CONSTRAINT pockets_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+  CONSTRAINT pockets_bank_account_id_fkey FOREIGN KEY (bank_account_id) REFERENCES public.bank_accounts(id)
+);
+CREATE TABLE public.profiles (
+  id uuid NOT NULL,
+  updated_at timestamp with time zone NOT NULL,
+  first_name text CHECK (char_length(first_name) >= 3),
+  last_name text,
+  gender USER-DEFINED,
+  birth_date date,
+  avatar_url text,
+  email text NOT NULL UNIQUE,
+  created_at timestamp with time zone NOT NULL,
+  CONSTRAINT profiles_pkey PRIMARY KEY (id),
+  CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.subcategories (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL DEFAULT auth.uid(),
+  category_id uuid NOT NULL,
+  name text NOT NULL,
+  icon text,
+  color text,
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  CONSTRAINT subcategories_pkey PRIMARY KEY (id),
+  CONSTRAINT subcategories_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id),
+  CONSTRAINT subcategories_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.transactions (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  amount numeric NOT NULL CHECK (amount > 0::numeric),
+  currency_code character NOT NULL DEFAULT 'COP'::bpchar,
+  category_id uuid NOT NULL,
+  description text,
+  occurred_at timestamp with time zone NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now(),
+  deleted_at timestamp with time zone,
+  bank_account_id uuid,
+  pocket_id uuid,
+  subcategory_id uuid,
+  CONSTRAINT transactions_pkey PRIMARY KEY (id),
+  CONSTRAINT transactions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id),
+  CONSTRAINT transactions_currency_code_fkey FOREIGN KEY (currency_code) REFERENCES public.currencies(code),
+  CONSTRAINT transactions_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id),
+  CONSTRAINT transactions_bank_account_id_fkey FOREIGN KEY (bank_account_id) REFERENCES public.bank_accounts(id),
+  CONSTRAINT transactions_pocket_id_fkey FOREIGN KEY (pocket_id) REFERENCES public.pockets(id),
+  CONSTRAINT transactions_subcategory_id_fkey FOREIGN KEY (subcategory_id) REFERENCES public.subcategories(id)
+);

@@ -27,7 +27,7 @@ async function loadProfile(session) {
     try {
         const { data, error } = await supabase
             .from('profiles')
-            .select('first_name, last_name, gender, birthdate')
+            .select('first_name, last_name, gender, birth_date')
             .eq('id', user.id)
             .single();
 
@@ -40,7 +40,7 @@ async function loadProfile(session) {
             document.getElementById('first_name').value = data.first_name || '';
             document.getElementById('last_name').value = data.last_name || '';
             document.getElementById('gender').value = data.gender || '';
-            document.getElementById('birthdate').value = data.birthdate || '';
+            document.getElementById('birthdate').value = data.birth_date || ''; // ID of input remains 'birthdate'
         }
 
         // Update header user name
@@ -70,7 +70,7 @@ async function updateProfile(event, session) {
         first_name: document.getElementById('first_name').value,
         last_name: document.getElementById('last_name').value,
         gender: document.getElementById('gender').value,
-        birthdate: document.getElementById('birthdate').value || null, // Handle empty date
+        birth_date: document.getElementById('birthdate').value || null, // Handle empty date
         updated_at: new Date(),
     };
 
