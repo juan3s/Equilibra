@@ -77,7 +77,8 @@ async function updateProfile(event, session) {
     try {
         const { error } = await supabase
             .from('profiles')
-            .upsert(updates);
+            .update(updates)
+            .eq('id', session.user.id);
 
         if (error) {
             throw error;
