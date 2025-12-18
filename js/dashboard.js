@@ -17,15 +17,15 @@ function guessNameFromEmail(email) {
     return local.charAt(0).toUpperCase() + local.slice(1);
 }
 
-async function fetchProfileFullName(userId) {
+async function fetchProfileFirstName(userId) {
     try {
         const { data, error } = await supabase
             .from('profiles')
-            .select('full_name')
+            .select('first_name')
             .eq('id', userId)
             .single();
         if (error) return null;
-        return data?.full_name || null;
+        return data?.first_name || null;
     } catch (e) { return null; }
 }
 
@@ -46,13 +46,20 @@ async function initDashboard() {
     if (!session) return;
     const user = session.user;
 
-    let displayName = await fetchProfileFullName(user.id);
-    if (!displayName) displayName = user.user_metadata?.full_name || guessNameFromEmail(user.email);
+    // 1. Prioridad: Nombre del perfil
+    let displayName = await fetchProfileFirstName(user.id);
+
+    // 2. Fallback: Nombre derivado del email
+    if (!displayName) {
+        displayName = guessNameFromEmail(user.email);
+    }
 
     const nameHeaderEl = $("user-name-header");
     const nameGreetingEl = $("user-name-greeting");
-    if (nameHeaderEl) nameHeaderEl.textContent = displayName || "Usuario";
-    if (nameGreetingEl) nameGreetingEl.textContent = displayName || "Usuario";
+
+    // Actualizar DOM
+    if (nameHeaderEl) nameHeaderEl.textContent = displayName;
+    if (nameGreetingEl) nameGreetingEl.textContent = displayName;
 
     setupUserMenu();
 
