@@ -11,6 +11,7 @@ export default defineConfig({
                 account: resolve(__dirname, 'account.html'),
                 reset: resolve(__dirname, 'reset.html'),
                 transactions: resolve(__dirname, 'transactions.html'),
+                profile: resolve(__dirname, 'profile.html'),
             },
         },
     },

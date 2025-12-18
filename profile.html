@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Equilibra — Perfil</title>
+    <meta name="description" content="Administra tu perfil y datos personales en Equilibra." />
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+
+    <!-- UI base -->
+    <script type="module" src="/main.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Supabase (UMD) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</head>
+
+<body class="min-h-screen flex flex-col bg-slate-50">
+    <!-- Header -->
+    <header class="w-full sticky top-0 z-30 glass border-b border-gray-200">
+        <div class="container mx-auto px-5 py-4 flex items-center justify-between">
+            <a href="/index.html" class="flex items-center gap-3 group">
+                <img src="/assets/logo-equilibra.svg" alt="Equilibra" class="w-8 h-8" />
+                <span class="font-semibold tracking-tight group-hover:text-indigo-300">Equilibra</span>
+            </a>
+            <!-- User menu -->
+            <nav class="relative">
+                <button id="user-menu-button"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 hover:border-slate-300 hover:bg-slate-100 text-sm text-slate-700">
+                    <span id="user-name-header">Usuario</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 opacity-70" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.25 8.29a.75.75 0 01-.02-1.08z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div id="user-menu"
+                    class="absolute right-0 mt-2 w-44 rounded-lg border border-slate-200 bg-white/95 backdrop-blur p-1 hidden shadow-xl">
+                    <a href="/dashboard.html"
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-50 text-sm text-slate-700">Dashboard</a>
+                    <a href="/transactions.html"
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-50 text-sm text-slate-700">Transacciones</a>
+                    <a href="/account.html"
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-50 text-sm text-slate-700">Mis
+                        Ajustes</a>
+                    <!-- Profile link will be injected here or already present in static pages -->
+                    <a href="/profile.html"
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-50 text-sm text-slate-700">Perfil</a>
+                    <button id="btn-logout"
+                        class="block w-full text-left px-3 py-2 rounded-md hover:bg-slate-50 text-sm text-slate-700">Cerrar
+                        sesión</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-1 py-10 md:py-14">
+        <section class="container mx-auto px-5 max-w-3xl">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-slate-900">Perfil</h1>
+                <p class="mt-2 text-slate-600">Esta es una página de administración de tu perfil. Aquí podrás brindar
+                    algunos datos que permitirán personalizar tu experiencia.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8">
+                <form id="profile-form" class="space-y-6">
+                    <!-- Nombres -->
+                    <div>
+                        <label for="first_name" class="block text-sm font-medium text-slate-700 mb-1">Nombres</label>
+                        <input type="text" id="first_name" name="first_name"
+                            class="w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            placeholder="Tu nombre">
+                    </div>
+
+                    <!-- Apellidos -->
+                    <div>
+                        <label for="last_name" class="block text-sm font-medium text-slate-700 mb-1">Apellidos</label>
+                        <input type="text" id="last_name" name="last_name"
+                            class="w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            placeholder="Tus apellidos">
+                    </div>
+
+                    <!-- Género -->
+                    <div>
+                        <label for="gender" class="block text-sm font-medium text-slate-700 mb-1">Género</label>
+                        <select id="gender" name="gender"
+                            class="w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            <option value="">Selecciona una opción</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Femenino">Femenino</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <!-- Fecha de nacimiento -->
+                    <div>
+                        <label for="birthdate" class="block text-sm font-medium text-slate-700 mb-1">Fecha de
+                            nacimiento</label>
+                        <input type="date" id="birthdate" name="birthdate"
+                            class="w-full rounded-lg border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                        <input type="email" id="email" name="email" disabled
+                            class="w-full rounded-lg border-slate-200 bg-slate-100 text-slate-500 sm:text-sm cursor-not-allowed">
+                        <p class="mt-1 text-xs text-slate-500">El email no se puede modificar.</p>
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="submit"
+                            class="inline-flex justify-center rounded-lg border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                            Guardar cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 bg-white mt-auto">
+        <div class="container mx-auto px-5 py-8 text-center text-xs text-slate-500">
+            © 2025 Equilibra — Diseñado por Digital Workflows®
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script type="module" src="/js/supabaseClient.js"></script>
+    <script type="module" src="/js/profile.js"></script>
+</body>
+
+</html>
