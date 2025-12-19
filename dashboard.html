@@ -17,6 +17,9 @@
 
     <!-- Supabase (UMD) -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="min-h-screen flex flex-col">
@@ -98,6 +101,34 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- Sección Gráfico Balance -->
+            <div class="mt-8 rounded-2xl bg-white border border-slate-200 p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Balance último año</h2>
+                        <p class="text-slate-500 text-sm">Comportamiento de tus finanzas mes a mes</p>
+                    </div>
+                    <!-- Selector de Moneda -->
+                    <div class="relative">
+                        <select id="chart-currency-select"
+                            class="appearance-none bg-slate-50 border border-slate-200 text-slate-700 py-2 pl-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium cursor-pointer disabled:opacity-50">
+                            <option value="" disabled selected>Cargando...</option>
+                        </select>
+                        <div
+                            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative h-72 w-full">
+                    <canvas id="balance-chart"></canvas>
                 </div>
             </div>
         </section>

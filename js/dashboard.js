@@ -77,6 +77,173 @@ async function initDashboard() {
 
     // 4. Cargar Resumen Financiero
     await loadFinancialSummary(user.id);
+
+    // 5. Cargar Gráfico de Balance
+    await loadBalanceChart(user.id);
+}
+
+let chartInstance = null; // Variable global para la instancia del gráfico
+
+async function loadBalanceChart(userId) {
+    const ctx = $("balance-chart")?.getContext('2d');
+    const currencySelect = $("chart-currency-select");
+    if (!ctx || !currencySelect) return;
+
+    // Calcular rango de 12 meses (incluyendo actual)
+    const now = new Date();
+    // 11 meses atrás desde el día 1
+    const startDate = new Date(Date.UTC(now.getFullYear(), now.getMonth() - 11, 1));
+    const endDate = new Date(Date.UTC(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999));
+
+    const { data: transactions, error } = await supabase
+        .from('transactions')
+        .select(`
+            amount,
+            occurred_at,
+            currency_code,
+            categories (
+                category_types (operation_factor)
+            )
+        `)
+        .eq('user_id', userId)
+        .gte('occurred_at', startDate.toISOString())
+        .lte('occurred_at', endDate.toISOString())
+        .order('occurred_at', { ascending: true });
+
+    if (error) {
+        console.error("Error loading chart data", error);
+        return;
+    }
+
+    // 1. Procesar datos: Agrupar por Moneda -> Mes (YYYY-MM)
+    const dataByCurrency = {}; // { 'COP': { '2025-01': { income: 0, expense: 0 }, ... } }
+
+    // Generar labels de los últimos 12 meses para asegurar eje X completo
+    const monthsMap = []; // [{ key: '2025-01', label: 'Ene 2025' }]
+    for (let i = 0; i < 12; i++) {
+        const d = new Date(Date.UTC(now.getFullYear(), now.getMonth() - 11 + i, 1));
+        const key = d.toISOString().slice(0, 7); // YYYY-MM
+        const label = d.toLocaleString('es-CO', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+        monthsMap.push({ key, label: label.charAt(0).toUpperCase() + label.slice(1) });
+    }
+
+    transactions.forEach(tx => {
+        const currency = tx.currency_code || 'COP';
+        const key = tx.occurred_at.slice(0, 7); // YYYY-MM
+        const amount = Number(tx.amount) || 0;
+        const factor = tx.categories?.category_types?.operation_factor || 0;
+
+        if (!dataByCurrency[currency]) dataByCurrency[currency] = {};
+        if (!dataByCurrency[currency][key]) dataByCurrency[currency][key] = { income: 0, expense: 0 };
+
+        if (factor > 0) dataByCurrency[currency][key].income += amount;
+        else if (factor < 0) dataByCurrency[currency][key].expense += amount;
+    });
+
+    // 2. Poblar Selector de Moneda
+    const currencies = Object.keys(dataByCurrency).sort();
+
+    if (currencies.length === 0) {
+        currencySelect.innerHTML = '<option disabled selected>Sin datos</option>';
+        return;
+    }
+
+    currencySelect.innerHTML = currencies.map(c => `<option value="${c}">${c}</option>`).join('');
+
+    // Listener cambio de moneda
+    currencySelect.addEventListener('change', (e) => {
+        renderChart(ctx, e.target.value, dataByCurrency, monthsMap);
+    });
+
+    // Renderizar inicial (primera moneda)
+    renderChart(ctx, currencies[0], dataByCurrency, monthsMap);
+}
+
+function renderChart(ctx, currency, dataByCurrency, monthsMap) {
+    // Preparar datasets
+    const incomeData = [];
+    const expenseData = [];
+    const labels = monthsMap.map(m => m.label);
+
+    monthsMap.forEach(m => {
+        const record = dataByCurrency[currency]?.[m.key] || { income: 0, expense: 0 };
+        incomeData.push(record.income);
+        expenseData.push(record.expense);
+    });
+
+    // Destruir anterior si existe
+    if (chartInstance) chartInstance.destroy();
+
+    chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Ingresos',
+                    data: incomeData,
+                    backgroundColor: '#10b981', // emerald-500
+                    borderRadius: 4,
+                    barPercentage: 0.6,
+                    categoryPercentage: 0.8
+                },
+                {
+                    label: 'Gastos',
+                    data: expenseData,
+                    backgroundColor: '#f43f5e', // rose-500
+                    borderRadius: 4,
+                    barPercentage: 0.6,
+                    categoryPercentage: 0.8
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { usePointStyle: true, boxWidth: 8 }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            let label = context.dataset.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('es-CO', {
+                                    style: 'currency',
+                                    currency: currency,
+                                    maximumFractionDigits: 0
+                                }).format(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { borderDash: [2, 4], color: '#f1f5f9' },
+                    ticks: {
+                        callback: function (value) {
+                            // Formato corto eje Y
+                            return new Intl.NumberFormat('es-CO', {
+                                style: 'currency',
+                                currency: currency,
+                                notation: "compact",
+                                compactDisplay: "short"
+                            }).format(value);
+                        }
+                    }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
 }
 
 async function loadFinancialSummary(userId) {
