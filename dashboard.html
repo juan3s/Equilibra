@@ -78,26 +78,26 @@
                 </div>
 
                 <!-- Tarjeta de estado futuro (placeholder) -->
-                <!-- Tarjeta de estado futuro (placeholder) -->
+                <!-- Tarjeta de estado financiero -->
                 <div class="rounded-2xl bg-white border border-slate-200 p-6 shadow-xl">
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-3 mb-4">
                         <img src="/assets/logo-equilibra.svg" alt="Equilibra" class="w-10 h-10" />
                         <div>
-                            <p class="text-slate-500 text-sm">Próximamente</p>
-                            <p class="text-xl font-semibold text-slate-900">Widgets financieros</p>
+                            <p class="text-slate-500 text-sm" id="dashboard-month">Resumen</p>
+                            <p class="text-xl font-semibold text-slate-900">Estado Financiero</p>
                         </div>
                     </div>
-                    <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
-                        <div class="rounded-xl border border-slate-100 bg-slate-50 p-3">
-                            <p class="text-slate-500">Ingresos</p>
-                            <p class="text-emerald-600 text-lg font-semibold">—</p>
-                        </div>
-                        <div class="rounded-xl border border-slate-100 bg-slate-50 p-3">
-                            <p class="text-slate-500">Gastos</p>
-                            <p class="text-rose-600 text-lg font-semibold">—</p>
+
+                    <!-- Container for dynamic widgets -->
+                    <div id="dashboard-financial-widgets" class="space-y-4">
+                        <!-- Loading or Empty State -->
+                        <div class="animate-pulse flex space-x-4 p-4 border border-slate-100 rounded-xl">
+                            <div class="flex-1 space-y-2 py-1">
+                                <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+                                <div class="h-8 bg-slate-200 rounded"></div>
+                            </div>
                         </div>
                     </div>
-                    <p class="mt-4 text-slate-400 text-xs">*Este panel se activará cuando conectemos tus datos.</p>
                 </div>
             </div>
         </section>
