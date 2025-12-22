@@ -82,7 +82,7 @@ async function initDashboard() {
     await loadBalanceChart(user.id);
 
     // 6. Cargar Gráfico Variación
-    await loadVariationChart(user.id);
+    await loadVariationChartSmallMultiples(user.id);
 }
 
 let chartInstance = null; // Variable global para la instancia del gráfico Balance
@@ -251,6 +251,8 @@ function renderChart(ctx, currency, dataByCurrency, monthsMap) {
     });
 }
 
+let variationCharts = [];
+
 async function loadVariationChart(userId) {
     const ctx = $("variation-chart")?.getContext('2d');
     const currencySelect = $("variation-currency-select");
@@ -329,77 +331,110 @@ async function loadVariationChart(userId) {
     renderVariationChart(ctx, currencies[0], dataByCurrency);
 }
 
-function renderVariationChart(ctx, currency, dataByCurrency) {
-    const categoriesData = dataByCurrency[currency] || {};
-    const labels = Object.keys(categoriesData).sort();
+function renderSmallMultiples(currency, selectedCats, dataByCurrency, visualMonths) {
+    const gridContainer = $("variation-grid");
+    gridContainer.innerHTML = '';
 
-    const percentages = [];
-    const colors = [];
+    // Destruir charts previos
+    variationCharts.forEach(c => c.destroy());
+    variationCharts = [];
 
-    labels.forEach(cat => {
-        const { current, prev } = categoriesData[cat];
-        let pct = 0;
+    const currencyData = dataByCurrency[currency] || {};
 
-        if (prev === 0) {
-            if (current > 0) pct = 100; // Crecimiento total si antes era 0 (tratamos como 100% para graficar)
-            else pct = 0;
-        } else {
-            pct = ((current - prev) / prev) * 100;
-        }
+    selectedCats.forEach(cat => {
+        if (!currencyData[cat]) return;
 
-        percentages.push(pct);
-        // Verde si aumenta (gasto positivo o ingreso positivo es "aumento" nominal)
-        // OJO: Instrucción dice: 
-        // "variación positiva (mes actual > mes anterior) -> verde"
-        // "variación negativa (mes actual < mes anterior) -> roja"
-        colors.push(pct >= 0 ? '#10b981' : '#f43f5e');
-    });
+        const catData = currencyData[cat];
+        const percentages = [];
+        const colors = [];
 
-    if (variationChartInstance) variationChartInstance.destroy();
+        // Calcular variaciones para los 12 meses visuales
+        visualMonths.forEach((m, index) => {
+            const currentKey = m.key;
+            // Key mes anterior: Necesitamos calcularla dinámicamente porque visualMonths[0] necesita su previo.
+            const dPrev = new Date(m.obj);
+            dPrev.setMonth(dPrev.getMonth() - 1);
+            const prevKey = dPrev.toISOString().slice(0, 7);
 
-    variationChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Variación %',
-                data: percentages,
-                backgroundColor: colors,
-                borderRadius: 4,
-                barPercentage: 0.6
-                // categoryPercentage: 0.8 // Opcional
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }, // No necesitamos leyenda de dataset
-                tooltip: {
-                    callbacks: {
-                        label: function (context) {
-                            const val = context.parsed.y;
-                            const symbol = val > 0 ? '▲' : (val < 0 ? '▼' : '-');
-                            return `${symbol} ${val.toFixed(1)}%`;
-                        }
-                    }
-                }
+            const currentVal = Math.abs(catData[currentKey] || 0);
+            const prevVal = Math.abs(catData[prevKey] || 0);
+
+            let pct = 0;
+            if (prevVal === 0) {
+                if (currentVal > 0) pct = 100; // Crecimiento desde 0
+                else pct = 0;
+            } else {
+                pct = ((currentVal - prevVal) / prevVal) * 100;
+            }
+
+            percentages.push(pct);
+
+            if (pct > 0) colors.push('#10b981'); // Green
+            else if (pct < 0) colors.push('#f43f5e'); // Red
+            else colors.push('#cbd5e1'); // Slate 300
+        });
+
+        // Crear Elementos DOM
+        const card = document.createElement('div');
+        card.className = "flex flex-col bg-slate-50 rounded-xl p-4 border border-slate-100";
+        card.innerHTML = `
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="font-semibold text-slate-700 text-sm truncate" title="${cat}">${cat}</h3>
+            </div>
+            <div class="relative h-24 w-full">
+                <canvas></canvas>
+            </div>
+        `;
+        gridContainer.appendChild(card);
+
+        const ctx = card.querySelector('canvas').getContext('2d');
+
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: visualMonths.map(m => m.label),
+                datasets: [{
+                    data: percentages,
+                    backgroundColor: colors,
+                    borderRadius: 2,
+                    barPercentage: 0.5,
+                    categoryPercentage: 0.8
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: { borderDash: [2, 4], color: '#f1f5f9' },
-                    ticks: {
-                        callback: function (value) {
-                            return value + '%';
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                return `${ctx.parsed.y.toFixed(1)}%`;
+                            }
                         }
                     }
                 },
-                x: {
-                    grid: { display: false }
+                scales: {
+                    y: {
+                        min: -100,
+                        max: 100,
+                        border: { display: false },
+                        grid: { display: true, color: '#e2e8f0', drawTicks: false },
+                        ticks: { display: false }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: 9 },
+                            maxRotation: 0,
+                            autoSkip: true,
+                            maxTicksLimit: 4
+                        }
+                    }
                 }
             }
-        }
+        });
+        variationCharts.push(chart);
     });
 }
 
@@ -506,6 +541,112 @@ async function loadFinancialSummary(userId) {
             widgetsContainer.appendChild(tempDiv.firstElementChild);
         });
     }
+}
+
+async function loadVariationChartSmallMultiples(userId) {
+    const gridContainer = $("variation-grid");
+    const currencySelect = $("variation-currency-select");
+    const filterBtn = $("category-filter-btn");
+    const filterMenu = $("category-filter-menu");
+
+    if (!gridContainer || !currencySelect) return;
+
+    // Calcular rango de 13 meses (12 de visualización + 1 previo para cálculo)
+    const now = new Date();
+
+    // Mes final (fin del mes actual)
+    const endDate = new Date(Date.UTC(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59));
+    // Mes inicial (13 meses atrás del mes actual) -> 12 meses visuales + 1 base
+    const startDate = new Date(Date.UTC(now.getFullYear(), now.getMonth() - 12, 1));
+
+    // Fetch data
+    const { data: transactions, error } = await supabase
+        .from('transactions')
+        .select(`
+            amount,
+            occurred_at,
+            currency_code,
+            categories (name),
+            category_types:categories (operation_factor)
+        `)
+        .eq('user_id', userId)
+        .gte('occurred_at', startDate.toISOString())
+        .lte('occurred_at', endDate.toISOString())
+        .order('occurred_at', { ascending: true });
+
+    if (error) {
+        console.error("Error loading variation data", error);
+        gridContainer.innerHTML = '<p class="text-rose-500 col-span-full text-center">Error cargando datos</p>';
+        return;
+    }
+
+    if (!transactions || transactions.length === 0) {
+        gridContainer.innerHTML = '<p class="text-slate-400 col-span-full text-center">No hay datos suficientes para mostrar variaciones.</p>';
+        currencySelect.innerHTML = '<option disabled selected>Sin datos</option>';
+        return;
+    }
+
+    // --- Procesamiento de Datos ---
+    const visualMonths = [];
+    for (let i = 0; i < 12; i++) {
+        const d = new Date(Date.UTC(startDate.getFullYear(), startDate.getMonth() + 1 + i, 1));
+        const key = d.toISOString().slice(0, 7); // YYYY-MM
+        const label = d.toLocaleString('es-CO', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+        const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+        visualMonths.push({ key, label: formattedLabel, obj: d });
+    }
+
+    const dataByCurrency = {};
+    const allCategories = new Set();
+
+    transactions.forEach(tx => {
+        const currency = tx.currency_code || 'COP';
+        const catName = tx.categories?.name || 'Otros';
+        const monthKey = tx.occurred_at.slice(0, 7);
+        const amount = Number(tx.amount) || 0;
+
+        allCategories.add(catName);
+
+        if (!dataByCurrency[currency]) dataByCurrency[currency] = {};
+        if (!dataByCurrency[currency][catName]) dataByCurrency[currency][catName] = {};
+
+        if (!dataByCurrency[currency][catName][monthKey]) dataByCurrency[currency][catName][monthKey] = 0;
+        dataByCurrency[currency][catName][monthKey] += amount;
+    });
+
+    const currencies = Object.keys(dataByCurrency).sort();
+    currencySelect.innerHTML = currencies.map(c => `<option value="${c}">${c}</option>`).join('');
+
+    const sortedCategories = Array.from(allCategories).sort();
+    filterMenu.innerHTML = sortedCategories.map(cat => `
+        <label class="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 cursor-pointer">
+            <input type="checkbox" value="${cat}" checked class="form-checkbox h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 category-checkbox">
+            <span class="text-sm text-slate-700">${cat}</span>
+        </label>
+    `).join('');
+
+    filterBtn.onclick = (e) => {
+        e.stopPropagation();
+        filterMenu.classList.toggle('hidden');
+    };
+    document.addEventListener('click', () => filterMenu.classList.add('hidden'));
+    filterMenu.addEventListener('click', (e) => e.stopPropagation());
+
+    currencySelect.addEventListener('change', () => updateGrid());
+
+    const checkboxes = filterMenu.querySelectorAll('.category-checkbox');
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', () => updateGrid());
+    });
+
+    function updateGrid() {
+        const selectedCurrency = currencySelect.value;
+        const selectedCats = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+
+        renderSmallMultiples(selectedCurrency, selectedCats, dataByCurrency, visualMonths);
+    }
+
+    updateGrid();
 }
 
 initDashboard();
