@@ -274,10 +274,7 @@ async function loadVariationChart(userId) {
             amount,
             occurred_at,
             currency_code,
-            categories (name),
-            category_types: categories (
-                operation_factor
-            )
+            categories (name)
         `)
         .eq('user_id', userId)
         .gte('occurred_at', prevMonthStart.toISOString())
