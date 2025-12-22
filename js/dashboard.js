@@ -80,69 +80,81 @@ async function initDashboard() {
 
     // 5. Cargar Gráfico de Balance
     await loadBalanceChart(user.id);
+
+    // 6. Cargar Gráfico Variación
+    await loadVariationChart(user.id);
 }
 
-let chartInstance = null; // Variable global para la instancia del gráfico
+let chartInstance = null; // Variable global para la instancia del gráfico Balance
+let variationChartInstance = null; // Variable global para gráfico Variación
 
-async function loadBalanceChart(userId) {
-    const ctx = $("balance-chart")?.getContext('2d');
-    const currencySelect = $("chart-currency-select");
+// ... (Functions loadBalanceChart and renderChart remain unchanged above) ...
+
+async function loadVariationChart(userId) {
+    const ctx = $("variation-chart")?.getContext('2d');
+    const currencySelect = $("variation-currency-select");
     if (!ctx || !currencySelect) return;
 
-    // Calcular rango de 12 meses (incluyendo actual)
+    // Calcular fechas
     const now = new Date();
-    // 11 meses atrás desde el día 1
-    const startDate = new Date(Date.UTC(now.getFullYear(), now.getMonth() - 11, 1));
-    const endDate = new Date(Date.UTC(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999));
 
+    // Mes actual
+    const currentMonthStart = new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1));
+    const currentMonthEnd = new Date(Date.UTC(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59));
+
+    // Mes anterior
+    const prevMonthStart = new Date(Date.UTC(now.getFullYear(), now.getMonth() - 1, 1));
+    const prevMonthEnd = new Date(Date.UTC(now.getFullYear(), now.getMonth(), 0, 23, 59, 59));
+
+    // Traer datos de AMBOS meses
     const { data: transactions, error } = await supabase
         .from('transactions')
         .select(`
             amount,
             occurred_at,
             currency_code,
-            categories (
-                category_types (operation_factor)
+            categories (name),
+            category_types: categories (
+                operation_factor
             )
         `)
         .eq('user_id', userId)
-        .gte('occurred_at', startDate.toISOString())
-        .lte('occurred_at', endDate.toISOString())
-        .order('occurred_at', { ascending: true });
+        .gte('occurred_at', prevMonthStart.toISOString())
+        .lte('occurred_at', currentMonthEnd.toISOString());
 
     if (error) {
-        console.error("Error loading chart data", error);
+        console.error("Error loading variation data", error);
         return;
     }
 
-    // 1. Procesar datos: Agrupar por Moneda -> Mes (YYYY-MM)
-    const dataByCurrency = {}; // { 'COP': { '2025-01': { income: 0, expense: 0 }, ... } }
-
-    // Generar labels de los últimos 12 meses para asegurar eje X completo
-    const monthsMap = []; // [{ key: '2025-01', label: 'Ene 2025' }]
-    for (let i = 0; i < 12; i++) {
-        const d = new Date(Date.UTC(now.getFullYear(), now.getMonth() - 11 + i, 1));
-        const key = d.toISOString().slice(0, 7); // YYYY-MM
-        const label = d.toLocaleString('es-CO', { month: 'short', year: 'numeric', timeZone: 'UTC' });
-        monthsMap.push({ key, label: label.charAt(0).toUpperCase() + label.slice(1) });
-    }
+    // Procesar datos
+    // Estructura: { 'COP': { 'Comida': { current: 100, prev: 80 }, ... } }
+    const dataByCurrency = {};
 
     transactions.forEach(tx => {
         const currency = tx.currency_code || 'COP';
-        const key = tx.occurred_at.slice(0, 7); // YYYY-MM
         const amount = Number(tx.amount) || 0;
-        const factor = tx.categories?.category_types?.operation_factor || 0;
+        const catName = tx.categories?.name || 'Otros';
+        const date = new Date(tx.occurred_at);
+
+        // Determinar si es mes actual o anterior
+        // Comparación simple por string YYYY-MM
+        const txMonthStr = tx.occurred_at.slice(0, 7);
+        const currentMonthStr = currentMonthStart.toISOString().slice(0, 7);
+        const prevMonthStr = prevMonthStart.toISOString().slice(0, 7);
 
         if (!dataByCurrency[currency]) dataByCurrency[currency] = {};
-        if (!dataByCurrency[currency][key]) dataByCurrency[currency][key] = { income: 0, expense: 0 };
+        if (!dataByCurrency[currency][catName]) dataByCurrency[currency][catName] = { current: 0, prev: 0 };
 
-        if (factor > 0) dataByCurrency[currency][key].income += amount;
-        else if (factor < 0) dataByCurrency[currency][key].expense += amount;
+        if (txMonthStr === currentMonthStr) {
+            dataByCurrency[currency][catName].current += amount;
+        } else if (txMonthStr === prevMonthStr) {
+            dataByCurrency[currency][catName].prev += amount;
+        }
     });
 
-    // 2. Poblar Selector de Moneda
+    // Poblar Selector
     const currencies = Object.keys(dataByCurrency).sort();
-
     if (currencies.length === 0) {
         currencySelect.innerHTML = '<option disabled selected>Sin datos</option>';
         return;
@@ -150,13 +162,160 @@ async function loadBalanceChart(userId) {
 
     currencySelect.innerHTML = currencies.map(c => `<option value="${c}">${c}</option>`).join('');
 
-    // Listener cambio de moneda
+    // Listener
     currencySelect.addEventListener('change', (e) => {
-        renderChart(ctx, e.target.value, dataByCurrency, monthsMap);
+        renderVariationChart(ctx, e.target.value, dataByCurrency);
     });
 
-    // Renderizar inicial (primera moneda)
-    renderChart(ctx, currencies[0], dataByCurrency, monthsMap);
+    // Render inicial
+    renderVariationChart(ctx, currencies[0], dataByCurrency);
+}
+
+function renderVariationChart(ctx, currency, dataByCurrency) {
+    const categoriesData = dataByCurrency[currency] || {};
+    const labels = Object.keys(categoriesData).sort();
+
+    const percentages = [];
+    const colors = [];
+
+    labels.forEach(cat => {
+        const { current, prev } = categoriesData[cat];
+        let pct = 0;
+
+        if (prev === 0) {
+            if (current > 0) pct = 100; // Crecimiento total si antes era 0 (tratamos como 100% para graficar)
+            else pct = 0;
+        } else {
+            pct = ((current - prev) / prev) * 100;
+        }
+
+        percentages.push(pct);
+        // Verde si aumenta (gasto positivo o ingreso positivo es "aumento" nominal)
+        // OJO: Instrucción dice: 
+        // "variación positiva (mes actual > mes anterior) -> verde"
+        // "variación negativa (mes actual < mes anterior) -> roja"
+        colors.push(pct >= 0 ? '#10b981' : '#f43f5e');
+    });
+
+    if (variationChartInstance) variationChartInstance.destroy();
+
+    variationChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Variación %',
+                data: percentages,
+                backgroundColor: colors,
+                borderRadius: 4,
+                barPercentage: 0.6
+                // categoryPercentage: 0.8 // Opcional
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }, // No necesitamos leyenda de dataset
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const val = context.parsed.y;
+                            const symbol = val > 0 ? '▲' : (val < 0 ? '▼' : '-');
+                            return `${symbol} ${val.toFixed(1)}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { borderDash: [2, 4], color: '#f1f5f9' },
+                    ticks: {
+                        callback: function (value) {
+                            return value + '%';
+                        }
+                    }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+}
+const ctx = $("balance-chart")?.getContext('2d');
+const currencySelect = $("chart-currency-select");
+if (!ctx || !currencySelect) return;
+
+// Calcular rango de 12 meses (incluyendo actual)
+const now = new Date();
+// 11 meses atrás desde el día 1
+const startDate = new Date(Date.UTC(now.getFullYear(), now.getMonth() - 11, 1));
+const endDate = new Date(Date.UTC(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999));
+
+const { data: transactions, error } = await supabase
+    .from('transactions')
+    .select(`
+            amount,
+            occurred_at,
+            currency_code,
+            categories (
+                category_types (operation_factor)
+            )
+        `)
+    .eq('user_id', userId)
+    .gte('occurred_at', startDate.toISOString())
+    .lte('occurred_at', endDate.toISOString())
+    .order('occurred_at', { ascending: true });
+
+if (error) {
+    console.error("Error loading chart data", error);
+    return;
+}
+
+// 1. Procesar datos: Agrupar por Moneda -> Mes (YYYY-MM)
+const dataByCurrency = {}; // { 'COP': { '2025-01': { income: 0, expense: 0 }, ... } }
+
+// Generar labels de los últimos 12 meses para asegurar eje X completo
+const monthsMap = []; // [{ key: '2025-01', label: 'Ene 2025' }]
+for (let i = 0; i < 12; i++) {
+    const d = new Date(Date.UTC(now.getFullYear(), now.getMonth() - 11 + i, 1));
+    const key = d.toISOString().slice(0, 7); // YYYY-MM
+    const label = d.toLocaleString('es-CO', { month: 'short', year: 'numeric', timeZone: 'UTC' });
+    monthsMap.push({ key, label: label.charAt(0).toUpperCase() + label.slice(1) });
+}
+
+transactions.forEach(tx => {
+    const currency = tx.currency_code || 'COP';
+    const key = tx.occurred_at.slice(0, 7); // YYYY-MM
+    const amount = Number(tx.amount) || 0;
+    const factor = tx.categories?.category_types?.operation_factor || 0;
+
+    if (!dataByCurrency[currency]) dataByCurrency[currency] = {};
+    if (!dataByCurrency[currency][key]) dataByCurrency[currency][key] = { income: 0, expense: 0 };
+
+    if (factor > 0) dataByCurrency[currency][key].income += amount;
+    else if (factor < 0) dataByCurrency[currency][key].expense += amount;
+});
+
+// 2. Poblar Selector de Moneda
+const currencies = Object.keys(dataByCurrency).sort();
+
+if (currencies.length === 0) {
+    currencySelect.innerHTML = '<option disabled selected>Sin datos</option>';
+    return;
+}
+
+currencySelect.innerHTML = currencies.map(c => `<option value="${c}">${c}</option>`).join('');
+
+// Listener cambio de moneda
+currencySelect.addEventListener('change', (e) => {
+    renderChart(ctx, e.target.value, dataByCurrency, monthsMap);
+});
+
+// Renderizar inicial (primera moneda)
+renderChart(ctx, currencies[0], dataByCurrency, monthsMap);
 }
 
 function renderChart(ctx, currency, dataByCurrency, monthsMap) {
