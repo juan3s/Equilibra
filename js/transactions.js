@@ -152,7 +152,52 @@ function updateSubcategorySelect(categoryId, selectedSubId = null) {
     }
 }
 
+
+
 // ---------- Lógica de Filtros UI ----------
+
+function changeMonth(delta) {
+    let m = FILTER_STATE.month + delta;
+    let y = FILTER_STATE.year;
+
+    if (m < 0) {
+        m = 11;
+        y--;
+    } else if (m > 11) {
+        m = 0;
+        y++;
+    }
+
+    FILTER_STATE.month = m;
+    FILTER_STATE.year = y;
+
+    // Sync Dropdowns
+    const monthSel = $("filter-period-month");
+    const yearSel = $("filter-period-year");
+
+    if (monthSel) monthSel.value = m;
+
+    if (yearSel) {
+        // Verify year option exists
+        let opt = yearSel.querySelector(`option[value="${y}"]`);
+        if (!opt) {
+            opt = document.createElement('option');
+            opt.value = y;
+            opt.textContent = y;
+            // Check where to insert
+            const first = parseInt(yearSel.firstElementChild.value);
+            const last = parseInt(yearSel.lastElementChild.value);
+
+            if (y < first) yearSel.insertBefore(opt, yearSel.firstElementChild);
+            else if (y > last) yearSel.appendChild(opt);
+            else yearSel.appendChild(opt); // Should not happen given the range logic usually covers gaps but safe fallback
+        }
+        yearSel.value = y;
+    }
+
+    updateActiveFilterText();
+    reloadTransactions();
+}
 
 function initFilters() {
     // 1. Periodo: Año
@@ -196,6 +241,10 @@ function initFilters() {
     });
 
     updateActiveFilterText();
+
+    // Nav Arrows
+    $("btn-prev-month")?.addEventListener('click', () => changeMonth(-1));
+    $("btn-next-month")?.addEventListener('click', () => changeMonth(1));
 }
 
 function setupMultiSelect(type, label) {

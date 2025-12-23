@@ -160,8 +160,24 @@
 
                 <!-- Active Indicator -->
                 <div
-                    class="text-xs text-slate-500 font-medium whitespace-nowrap bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
-                    Viendo: <span id="active-filter-period" class="text-indigo-600">...</span>
+                    class="text-xs text-slate-500 font-medium whitespace-nowrap bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200 flex items-center gap-2">
+                    <button id="btn-prev-month"
+                        class="hover:text-indigo-600 cursor-pointer p-0.5 rounded-full hover:bg-slate-200 transition-colors"
+                        title="Mes anterior">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <span>Viendo: <span id="active-filter-period" class="text-indigo-600">...</span></span>
+                    <button id="btn-next-month"
+                        class="hover:text-indigo-600 cursor-pointer p-0.5 rounded-full hover:bg-slate-200 transition-colors"
+                        title="Mes siguiente">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
                 </div>
             </div>
 
