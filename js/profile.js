@@ -1,16 +1,9 @@
-
 // Cliente compartido desde /js/supabaseClient.js
+import { setupStandardMenu } from '/js/menu-utils.js';
 const supabase = window.sb;
 
-// Authentication check
-async function checkAuth() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-        window.location.href = '/login.html';
-        return null;
-    }
-    return session;
-}
+// Authentication check handled by setupStandardMenu
+
 
 // Load profile data
 async function loadProfile(session) {
@@ -102,37 +95,13 @@ async function updateProfile(event, session) {
 }
 
 // Menu handling (reused from other pages mostly, but keeping it self-contained or we could import a shared ui.js if it existed)
-function setupMenu() {
-    const btn = document.getElementById('user-menu-button');
-    const menu = document.getElementById('user-menu');
-    const btnLogout = document.getElementById('btn-logout');
-
-    if (btn && menu) {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            menu.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!btn.contains(e.target) && !menu.contains(e.target)) {
-                menu.classList.add('hidden');
-            }
-        });
-    }
-
-    if (btnLogout) {
-        btnLogout.addEventListener('click', async () => {
-            await supabase.auth.signOut();
-            window.location.href = '/login.html';
-        });
-    }
-}
+// Handled by setupStandardMenu
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
-    const session = await checkAuth();
+    const session = await setupStandardMenu({ redirectIfNoSession: true });
     if (session) {
-        setupMenu();
+        // setupMenu(); // Handled by setupStandardMenu
         await loadProfile(session);
 
         const form = document.getElementById('profile-form');
