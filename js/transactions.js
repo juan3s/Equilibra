@@ -1,5 +1,6 @@
 // Cliente compartido desde /js/supabaseClient.js
 import { setupStandardMenu } from '/js/menu-utils.js';
+import { initBulkUpload } from '/js/bulk-upload.js';
 const supabase = window.sb;
 const $ = (id) => document.getElementById(id);
 
@@ -552,6 +553,10 @@ async function initTransactions() {
         loadSubcategories(user.id),
         loadCurrencies()
     ]);
+
+    // Init Bulk Upload Logic
+    initBulkUpload(supabase, { accounts: ACCOUNTS, currencies: CURRENCIES, categories: CATEGORIES });
+    window.addEventListener('transactions-updated', () => reloadTransactions());
 
     // Init UI Filters (needs data loaded)
     initFilters();
