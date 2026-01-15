@@ -49,6 +49,11 @@ function getUserMenuHTML(displayName) {
                     <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     Transacciones
                 </a>
+                <a href="/pockets.html"
+                    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50 text-sm text-slate-700 transition-colors">
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                    Bolsillos
+                </a>
                 <a href="/account.html"
                     class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-50 text-sm text-slate-700 transition-colors">
                     <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -78,14 +83,14 @@ function attachMenuListeners() {
     if (!btn || !menu) return;
 
     const toggle = () => menu.classList.toggle('hidden');
-    
+
     // Clean up previous listeners if any (simple way is difficult without storing references, 
     // but we usually run this once per page load. If re-running, functionality might duplicate 
     // but toggle logic is usually safe if careful. Ideally, cloneNode to strip listeners, but simpler here just to add)
-    
-    btn.onclick = (e) => { 
-        e.stopPropagation(); 
-        toggle(); 
+
+    btn.onclick = (e) => {
+        e.stopPropagation();
+        toggle();
     };
 
     document.onclick = (e) => {
@@ -124,7 +129,7 @@ export async function setupStandardMenu({ container = null, redirectIfNoSession 
     }
 
     const user = session.user;
-    
+
     // 1. Determine Display Name
     // Priority: Profile First Name > Email Username
     let displayName = await fetchProfileName(user.id);
@@ -137,13 +142,13 @@ export async function setupStandardMenu({ container = null, redirectIfNoSession 
     if (container) {
         container.innerHTML = getUserMenuHTML(displayName);
         attachMenuListeners();
-    } 
+    }
     // Case B: Existing header structure (Dashboard, Transactions, Account)
     else {
         // Update Name
         const nameHeaderEl = document.getElementById("user-name-header");
         if (nameHeaderEl) nameHeaderEl.textContent = displayName;
-        
+
         // Also update greeting if present (Dashboard specific)
         const nameGreetingEl = document.getElementById("user-name-greeting");
         if (nameGreetingEl) nameGreetingEl.textContent = displayName;
@@ -154,16 +159,16 @@ export async function setupStandardMenu({ container = null, redirectIfNoSession 
         // but preserving the existing structure if it matches is also fine.
         // Let's replace the content of the 'nav' or the specific container if we can identify it, 
         // to ensure the dropdown items are standard (icon + text).
-        
+
         // Let's try to find the parent of #user-menu-button (usually a <nav>)
         const existingBtn = document.getElementById("user-menu-button");
         if (existingBtn) {
             const nav = existingBtn.parentElement; // The <div class="relative"> or <nav>
             if (nav) {
-                 // Replace the whole button+menu structure with our standard one to ensure icons/styles match
-                 // modifying the outerHTML or innerHTML of the parent
-                 nav.innerHTML = getUserMenuHTML(displayName);
-                 attachMenuListeners();
+                // Replace the whole button+menu structure with our standard one to ensure icons/styles match
+                // modifying the outerHTML or innerHTML of the parent
+                nav.innerHTML = getUserMenuHTML(displayName);
+                attachMenuListeners();
             }
         }
     }

@@ -12,6 +12,7 @@ export default defineConfig({
                 reset: resolve(__dirname, 'reset.html'),
                 transactions: resolve(__dirname, 'transactions.html'),
                 profile: resolve(__dirname, 'profile.html'),
+                pockets: resolve(__dirname, 'pockets.html'),
             },
         },
     },
