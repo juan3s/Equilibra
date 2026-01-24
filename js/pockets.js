@@ -33,7 +33,7 @@ async function loadBankAccounts(uid) {
         .order('name');
     if (error) console.error('Error loading accounts:', error);
     ACCOUNTS = data || [];
-    
+
     const sel = $("mv-account");
     if (sel) {
         sel.innerHTML = '<option value="" disabled selected>Selecciona una cuenta…</option>' +
@@ -43,7 +43,7 @@ async function loadBankAccounts(uid) {
 
 async function loadPocketsForAccount(accountId) {
     if (!accountId) return [];
-    
+
     // Check cache
     if (POCKETS_BY_ACCOUNT[accountId]) return POCKETS_BY_ACCOUNT[accountId];
 
@@ -52,12 +52,12 @@ async function loadPocketsForAccount(accountId) {
         .select('id,name')
         .eq('bank_account_id', accountId)
         .order('name');
-        
+
     if (error) {
         console.error('Error loading pockets:', error);
         return [];
     }
-    
+
     POCKETS_BY_ACCOUNT[accountId] = data || [];
     return data || [];
 }
@@ -98,7 +98,7 @@ function changeMonth(delta) {
 
             if (y < first) yearSel.insertBefore(opt, yearSel.firstElementChild);
             else if (y > last) yearSel.appendChild(opt);
-            else yearSel.appendChild(opt); 
+            else yearSel.appendChild(opt);
         }
         yearSel.value = y;
     }
@@ -219,8 +219,23 @@ async function loadMovements(uid) {
         // Valor
         const currency = r.bank_accounts?.currency_code || 'COP';
         const amountStr = new Intl.NumberFormat('es-CO', { style: 'currency', currency: currency }).format(r.amount);
-        
-        tr.appendChild(createElement('td', 'px-6 py-4 text-right text-slate-900 font-medium', amountStr));
+
+        // Color and Value based on movement type
+        let colorClass = 'text-slate-900';
+        // Logic: 
+        // Load: from_pocket is null (or undefined) -> Green
+        // Unload: to_pocket is null (or undefined) -> Red
+        // Internal: both exist -> Blue
+
+        if (!r.from_pocket_id && r.to_pocket_id) {
+            colorClass = 'text-emerald-600'; // Carga
+        } else if (r.from_pocket_id && !r.to_pocket_id) {
+            colorClass = 'text-rose-600'; // Descarga
+        } else if (r.from_pocket_id && r.to_pocket_id) {
+            colorClass = 'text-blue-600'; // Interno
+        }
+
+        tr.appendChild(createElement('td', `px-6 py-4 text-right font-medium ${colorClass}`, amountStr));
 
         // Acciones
         const tdActions = createElement('td', 'px-6 py-4 text-right whitespace-nowrap');
@@ -241,6 +256,24 @@ async function loadMovements(uid) {
     if (msg) msg.textContent = '';
 }
 
+// ---------- Logic for Movement Types ----------
+function updateFormVisibility() {
+    const type = $("mv-type").value; // load, unload, internal
+    const fromContainer = $("mv-from-pocket").closest('div');
+    const toContainer = $("mv-to-pocket").closest('div');
+
+    // Default visibility
+    fromContainer.classList.remove('hidden');
+    toContainer.classList.remove('hidden');
+
+    if (type === 'load') {
+        fromContainer.classList.add('hidden');
+    } else if (type === 'unload') {
+        toContainer.classList.add('hidden');
+    }
+    // internal: show both (default)
+}
+
 // ---------- Modal Crear/Editar Movimiento ----------
 
 function toggleModal(show) {
@@ -259,7 +292,7 @@ function updateCurrencyDisplay(accountId) {
 async function updatePocketsDropdowns(accountId, selectedFrom = null, selectedTo = null) {
     const fromSel = $("mv-from-pocket");
     const toSel = $("mv-to-pocket");
-    
+
     if (!accountId) {
         fromSel.innerHTML = '<option value="">— Ninguno —</option>';
         fromSel.disabled = true;
@@ -267,19 +300,19 @@ async function updatePocketsDropdowns(accountId, selectedFrom = null, selectedTo
         toSel.disabled = true;
         return;
     }
-    
+
     // Enable and show loading state if fetching needed
     fromSel.disabled = false;
     toSel.disabled = false;
-    
+
     const pockets = await loadPocketsForAccount(accountId);
-    
-    const optionsHtml = '<option value="">— Ninguno —</option>' + 
+
+    const optionsHtml = '<option value="">— Ninguno —</option>' +
         pockets.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-        
+
     fromSel.innerHTML = optionsHtml;
     toSel.innerHTML = optionsHtml;
-    
+
     if (selectedFrom) fromSel.value = selectedFrom;
     if (selectedTo) toSel.value = selectedTo;
 }
@@ -290,7 +323,7 @@ function fillForm(m = {}) {
     $("mv-desc").value = m.description || '';
     $("mv-account").value = m.bank_account_id || '';
     $("mv-amount").value = m.amount !== undefined ? m.amount : '';
-    
+
     // Trigger updates
     if (m.bank_account_id) {
         updateCurrencyDisplay(m.bank_account_id);
@@ -299,6 +332,16 @@ function fillForm(m = {}) {
         $("mv-currency").value = '';
         updatePocketsDropdowns(null);
     }
+
+    // Determine Type
+    let type = 'load'; // Default
+    if (m.id) {
+        if (m.from_pocket_id && m.to_pocket_id) type = 'internal';
+        else if (m.from_pocket_id && !m.to_pocket_id) type = 'unload';
+        else type = 'load';
+    }
+    $("mv-type").value = type;
+    updateFormVisibility();
 
     $("modal-title").textContent = m.id ? 'Editar Movimiento' : 'Agregar Movimiento';
     $("modal-msg").textContent = '';
@@ -318,13 +361,15 @@ function bindModal() {
     );
 
     $("movement-form")?.addEventListener('submit', upsertMovement);
-    
+
     // When account changes
     $("mv-account")?.addEventListener('change', (e) => {
         const accId = e.target.value;
         updateCurrencyDisplay(accId);
         updatePocketsDropdowns(accId);
     });
+
+    $("mv-type")?.addEventListener('change', updateFormVisibility);
 }
 
 // ---------- Acciones CRUD ----------
@@ -352,12 +397,34 @@ async function upsertMovement(e) {
         setModalError($("err-mv-amount"), true);
         valid = false;
     }
-    
+
     // Custom validation: At least one pocket
-    if (!from_pocket_id && !to_pocket_id) {
-        $("modal-msg").textContent = "Debes seleccionar al menos un bolsillo (Origen o Destino).";
-        $("modal-msg").className = "md:col-span-2 text-sm text-center text-rose-500 mt-2";
-        valid = false;
+    const type = $("mv-type").value;
+
+    // Adjust pockets based on type
+    let finalFrom = from_pocket_id;
+    let finalTo = to_pocket_id;
+
+    if (type === 'load') {
+        finalFrom = null; // Ensure null
+        if (!to_pocket_id) {
+            $("modal-msg").textContent = "El Bolsillo Destino es obligatorio para Cargas.";
+            $("modal-msg").className = "md:col-span-2 text-sm text-center text-rose-500 mt-2";
+            valid = false;
+        }
+    } else if (type === 'unload') {
+        finalTo = null; // Ensure null
+        if (!from_pocket_id) {
+            $("modal-msg").textContent = "El Bolsillo Origen es obligatorio para Descargas.";
+            $("modal-msg").className = "md:col-span-2 text-sm text-center text-rose-500 mt-2";
+            valid = false;
+        }
+    } else if (type === 'internal') {
+        if (!from_pocket_id || !to_pocket_id) {
+            $("modal-msg").textContent = "Origen y Destino son obligatorios para movimientos Internos.";
+            $("modal-msg").className = "md:col-span-2 text-sm text-center text-rose-500 mt-2";
+            valid = false;
+        }
     }
 
     if (!valid) return;
@@ -370,8 +437,8 @@ async function upsertMovement(e) {
         occurred_at,
         description,
         bank_account_id,
-        from_pocket_id,
-        to_pocket_id,
+        from_pocket_id: finalFrom,
+        to_pocket_id: finalTo,
         amount
     };
 
@@ -431,7 +498,7 @@ async function initPockets() {
 
     // Init UI Filters
     initFilters();
-    
+
     bindModal();
     bindTable();
 
